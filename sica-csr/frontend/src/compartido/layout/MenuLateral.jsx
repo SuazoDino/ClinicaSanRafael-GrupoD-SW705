@@ -2,6 +2,7 @@
 import { NavLink } from 'react-router-dom'
 import { RUTAS } from '../../rutas.js'
 import { useSesion } from '../autenticacion/ContextoSesion.jsx'
+import Marca from '../componentes/Marca.jsx'
 
 export default function MenuLateral() {
   const { tieneRol } = useSesion()
@@ -9,7 +10,7 @@ export default function MenuLateral() {
 
   return (
     <nav className="menu">
-      <NavLink to="/" className="menu__marca">SICA-CSR</NavLink>
+      <NavLink to="/" end className="menu__marca"><Marca variante="clara" /></NavLink>
       {visibles.map((r) => (
         <NavLink key={r.ruta} to={r.ruta} className="menu__enlace">{r.titulo}</NavLink>
       ))}

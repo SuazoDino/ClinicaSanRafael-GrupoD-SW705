@@ -1,7 +1,11 @@
 /* Estilos globales. Colores y medidas en variables para mantener todo consistente. */
 :root {
-  --color-primario: #0f6e6e;
-  --color-primario-oscuro: #0b5454;
+  /* Paleta tomada del logo (degradado verde azulado) */
+  --color-primario: #0f7c85;
+  --color-primario-oscuro: #0b5a66;
+  --color-acento: #17b3a3;
+  --color-marca-texto: #0d3a4c;
+  --degradado-marca: linear-gradient(160deg, #0b5a66 0%, #0e7591 55%, #129e9a 100%);
   --color-fondo: #f4f6f7;
   --color-superficie: #ffffff;
   --color-texto: #1d2a2f;
@@ -10,7 +14,7 @@
   --color-error: #b3261e;
   --color-exito: #1e7b3a;
   --color-info: #1d5fa8;
-  --radio: 8px;
+  --radio: 4px;
   font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   color: var(--color-texto);
   background: var(--color-fondo);
@@ -30,16 +34,17 @@ h2 { font-size: 1.15rem; margin: 0 0 .75rem; }
 }
 .layout__contenido { padding: 1.5rem; max-width: 1100px; width: 100%; }
 
-.menu { width: 220px; background: var(--color-primario-oscuro); padding: 1rem .5rem; display: flex; flex-direction: column; gap: .25rem; }
+.menu { width: 240px; background: var(--degradado-marca); padding: 1rem .6rem; display: flex; flex-direction: column; gap: .25rem; }
 .menu a { color: #e6f2f2; text-decoration: none; padding: .55rem .75rem; border-radius: var(--radio); }
 .menu a:hover { background: rgba(255, 255, 255, .1); }
 .menu a.active:not(.menu__marca) { background: rgba(255, 255, 255, .18); font-weight: 600; }
-.menu__marca { font-weight: 700; font-size: 1.1rem; margin-bottom: .75rem; }
+.menu a.menu__marca { padding: .25rem .4rem 1rem; margin-bottom: .5rem; border-bottom: 1px solid rgba(255, 255, 255, .15); border-radius: 0; }
+.menu a.menu__marca:hover { background: none; }
 
 @media (max-width: 720px) {
   .layout { flex-direction: column; }
   .menu { width: 100%; flex-direction: row; flex-wrap: wrap; }
-  .menu__marca { margin: 0; }
+  .menu a.menu__marca { width: 100%; padding-bottom: .6rem; }
   .layout__contenido { padding: 1rem; }
 }
 
@@ -80,8 +85,118 @@ input:focus, textarea:focus, select:focus { outline: 2px solid var(--color-prima
 .acceso { text-decoration: none; color: var(--color-primario-oscuro); font-weight: 600; }
 .acceso:hover { border-color: var(--color-primario); }
 
-/* Login */
-.login { min-height: 100vh; display: grid; place-items: center; padding: 1rem; }
-.login__tarjeta { width: 100%; max-width: 360px; display: flex; flex-direction: column; gap: .9rem; }
-.login__tarjeta h1 { margin: 0; color: var(--color-primario-oscuro); }
-.login__tarjeta p { margin: 0; }
+/* Marca: isotipo + "CLÍNICA / San Rafael / — CUIDADO QUE SANA" */
+.marca { display: inline-flex; align-items: center; gap: .7rem; font-family: 'Poppins', system-ui, sans-serif; }
+.marca__logo { flex: none; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; }
+.marca__logo img { width: 100%; height: 100%; object-fit: contain; }
+.marca__texto { display: flex; flex-direction: column; line-height: 1; }
+.marca__clinica { font-size: .62rem; font-weight: 500; letter-spacing: .32em; text-transform: uppercase; color: var(--color-acento); }
+.marca__nombre { font-size: 1.15rem; font-weight: 700; letter-spacing: -.01em; margin: .15rem 0 .2rem; }
+.marca__lema { display: inline-flex; align-items: center; gap: .4rem; font-size: .52rem; font-weight: 500; letter-spacing: .2em; text-transform: uppercase; }
+.marca__lema::before { content: ''; width: 1.1rem; height: 2px; border-radius: 2px; background: var(--color-acento); }
+.marca--oscura .marca__nombre { color: var(--color-marca-texto); }
+.marca--oscura .marca__lema { color: var(--color-primario-oscuro); }
+/* Sobre fondo oscuro el isotipo va en un círculo blanco para que se distinga */
+.marca--clara .marca__logo { background: #fff; padding: 3px; }
+.marca--clara .marca__clinica { color: #7fe3d6; }
+.marca--clara .marca__nombre, .marca--clara .marca__lema { color: #fff; }
+.marca--clara .marca__lema { opacity: .85; }
+.marca--clara .marca__lema::before { background: #7fe3d6; }
+.marca--mediano { gap: .85rem; }
+.marca--mediano .marca__logo { width: 60px; height: 60px; }
+.marca--mediano .marca__clinica { font-size: .72rem; }
+.marca--mediano .marca__nombre { font-size: 1.6rem; margin: .2rem 0 .3rem; }
+.marca--mediano .marca__lema { font-size: .6rem; }
+.marca--mediano .marca__lema::before { width: 1.4rem; }
+.marca--grande { gap: 1.1rem; }
+.marca--grande .marca__logo { width: 84px; height: 84px; }
+.marca--grande .marca__clinica { font-size: .85rem; }
+.marca--grande .marca__nombre { font-size: 2.1rem; margin: .25rem 0 .35rem; }
+.marca--grande .marca__lema { font-size: .7rem; }
+.marca--grande .marca__lema::before { width: 1.8rem; }
+
+/* Cabecera */
+.layout__sede { margin-right: auto; font-size: .9rem; }
+.usuario { display: inline-flex; align-items: center; gap: .55rem; }
+.usuario__avatar {
+  width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--degradado-marca); color: #fff; font-weight: 700;
+}
+.usuario__datos { display: flex; flex-direction: column; line-height: 1.15; font-size: .9rem; }
+.usuario__datos .texto-suave { font-size: .78rem; text-transform: capitalize; }
+
+/* Inicio */
+.bienvenida {
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  background: var(--color-superficie); border: 1px solid var(--color-borde); border-left: 4px solid var(--color-acento);
+  border-radius: var(--radio); padding: 1.25rem 1.5rem; margin-bottom: 1.25rem;
+}
+.bienvenida h1 { margin: .15rem 0 .25rem; }
+.bienvenida p { margin: 0; }
+.bienvenida__clinica { font-size: .78rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--color-primario); }
+.bienvenida__logo { width: 72px; height: 72px; flex: none; }
+
+/* Login: panel de marca a la izquierda, formulario directo sobre blanco a la derecha */
+.login { min-height: 100vh; display: grid; grid-template-columns: minmax(0, 1fr) clamp(460px, 38vw, 620px); background: var(--color-superficie); }
+/* Foto a toda la altura del panel.
+   Degradados: abajo (verde de marca) para que el texto se lea y a la derecha (hacia blanco)
+   para que el corte de la foto se funda con el panel del formulario. */
+.login__presentacion { position: relative; overflow: hidden; background: var(--color-primario-oscuro); color: #fff; }
+.login__foto { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 46% center; }
+.login__presentacion::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background:
+    linear-gradient(to left, #fff 0%, rgba(255, 255, 255, .7) 2%, rgba(255, 255, 255, 0) 8%),
+    linear-gradient(to top, rgba(8, 52, 62, .94) 0%, rgba(11, 90, 102, .72) 24%, rgba(14, 117, 145, .2) 46%, rgba(14, 117, 145, 0) 60%);
+}
+.login__mensaje { position: absolute; left: 0; bottom: 0; z-index: 1; max-width: 34rem; display: flex; flex-direction: column; gap: .6rem; padding: 2.75rem 3rem; }
+.login__etiqueta { align-self: flex-start; font-size: .72rem; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: #7fe3d6; }
+.login__etiqueta::before { content: ''; display: inline-block; width: 1.5rem; height: 2px; margin: 0 .5rem .25rem 0; vertical-align: middle; background: currentColor; }
+.login__eslogan { margin: 0; font-family: 'Poppins', system-ui, sans-serif; font-size: 2.4rem; font-weight: 700; line-height: 1.12; }
+.login__lema { margin: 0; font-size: 1rem; line-height: 1.5; opacity: .9; }
+.login__panel { display: flex; flex-direction: column; align-items: center; padding: 2.5rem 2.5rem 1.5rem; }
+/* Logo arriba a la izquierda, separado del panel verde por el mismo margen del panel */
+.login__encabezado { align-self: stretch; }
+.login__formulario { width: 100%; max-width: 440px; display: flex; flex-direction: column; gap: 1.25rem; margin: auto 0; padding: 2rem 0; }
+.login__formulario input { font-size: 1rem; }
+.login__formulario .campo-icono input { padding-top: .85rem; padding-bottom: .85rem; }
+.login__titulo { margin-bottom: .5rem; }
+.login__titulo h1 { margin: 0 0 .35rem; font-size: 2rem; color: var(--color-texto); }
+.login__titulo p { font-size: 1.05rem; }
+.login__titulo p { margin: 0; }
+.login__formulario .boton { padding: .9rem; margin-top: .5rem; font-size: 1.05rem; font-weight: 600; }
+.login__pie { margin: 2rem 0 0; font-size: .8rem; text-align: center; }
+.login__campo { display: flex; flex-direction: column; gap: .35rem; }
+.login__campo label { font-size: .95rem; color: var(--color-texto); font-weight: 500; }
+.login__fila-etiqueta { display: flex; justify-content: space-between; align-items: baseline; gap: .5rem; }
+.login__aviso { font-size: .8rem; font-weight: 400; color: #9a6700; }
+.login__formulario .alerta { margin: 0; font-size: .9rem; }
+
+/* Enlace con aspecto de texto (botones que no envían el formulario) */
+.enlace { font: inherit; font-size: .85rem; font-weight: 400; background: none; border: none; padding: 0; cursor: pointer; color: var(--color-primario); }
+.enlace:hover { text-decoration: underline; }
+
+/* Campo con ícono a la izquierda y acción opcional a la derecha */
+.campo-icono { position: relative; display: flex; align-items: center; }
+.campo-icono > svg { position: absolute; left: .75rem; color: var(--color-suave); pointer-events: none; }
+.campo-icono input { width: 100%; padding-left: 2.4rem; padding-top: .65rem; padding-bottom: .65rem; }
+.campo-icono:has(.campo-icono__accion) input { padding-right: 2.6rem; }
+.campo-icono:focus-within > svg { color: var(--color-primario); }
+.campo-icono__accion {
+  position: absolute; right: .35rem; display: grid; place-items: center; width: 2rem; height: 2rem;
+  background: none; border: none; border-radius: var(--radio); color: var(--color-suave); cursor: pointer;
+}
+.campo-icono__accion:hover { color: var(--color-primario); background: #eef5f5; }
+
+@media (max-width: 1024px) {
+  .login { grid-template-columns: 1fr; }
+  .login__presentacion { display: none; }
+  .login__panel { padding: 1.5rem 1rem 1rem; }
+  .login__formulario { margin: 3.5rem 0 auto; padding: 0; }
+  .login__encabezado .marca__logo { width: 48px; height: 48px; }
+  .login__encabezado .marca__nombre { font-size: 1.35rem; }
+}
+
+@media (max-width: 720px) {
+  .layout__sede, .usuario__datos { display: none; }
+}
