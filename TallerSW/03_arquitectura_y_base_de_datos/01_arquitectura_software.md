@@ -1,0 +1,40 @@
+# 5. Documento de arquitectura de software (SAD)
+
+## 5.1. Estilo arquitectónico
+
+* **Estilo elegido:** Arquitectura en capas (presentación, negocio y datos) con una API REST monolítica modular, consumida por una SPA en React.
+* **Justificación:** Prioriza simplicidad de construcción, prueba y despliegue para cumplir el timebox de la semana 11. Una sola base PostgreSQL garantiza transacciones ACID para la HCE y facilita apertura en <2s con 8 000 pacientes.
+
+![SAD](../assets/arquitectura/SAD.png)
+
+## 5.2. Vistas 4+1 (simplificadas)
+* **Lógica:** Tres capas (SPA React en presentación, API FastAPI en negocio con módulos M1 y M2, servicios transversales JWT/RBAC/bitácora, y PostgreSQL en datos).
+* **Procesos:** Flujos seguros mediante tokens JWT, validación de roles, verificación de cupos con transacciones atómicas e índices únicos parciales, tareas programadas para recordatorios y bitácora inmutable.
+* **Desarrollo:** Repositorio en GitHub con carpetas `backend`, `frontend`, `db` y `tests`. Módulos independientes comunicados por servicios/endpoints.
+* **Física:** Navegadores en San Borja conectados por HTTPS a servidor de aplicaciones en la nube (Docker) y PostgreSQL gestionado. Despliegue con GitHub Actions.
+
+![SAD](../assets/arquitectura/Vistas4+1(fisica).png)
+
+* **Escenarios:** Validación de DNI existente, rechazo de cupos ocupados (409), apertura de HCE unificada en <2s, y anulación lógica de entradas clínicas.
+
+## 5.3. Decisiones de arquitectura (ADR)
+* **ADR-01:** Arquitectura en capas con API REST monolítica modular y frontend SPA (React).
+* **ADR-02:** PostgreSQL como única base de datos, con migraciones Alembic e índices por DNI y HCE.
+* **ADR-03:** Autenticación JWT de corta duración con rol como claim, refresh token y middleware RBAC.
+* **ADR-04:** Anulación lógica en vez de borrado físico mediante triggers en la base de datos.
+
+## 5.4. Atributos de calidad
+* **Rendimiento (RFN02):** Índices optimizados, validado con Locust (<2s percentil 95 con 8 000 pacientes).
+* **Seguridad (RFN01):** JWT con RBAC, contraseñas con hash, HTTPS y bitácora inmutable.
+* **Disponibilidad (RFN03):** Contenedor con health check, respaldo diario y objetivo de 99.5%.
+* **Trazabilidad (RFN04):** Anulación lógica y triggers de bloqueo DELETE en tablas clínicas.
+* **Usabilidad (RFN05):** SPA con pantallas simples (<3 clics para operaciones clave).
+
+## 5.5. Stack tecnológico
+* **Backend / API:** Python 3.12 + FastAPI (SQLAlchemy, Alembic).
+* **Base de datos:** PostgreSQL 16.
+* **Frontend:** React + Vite (SPA).
+* **Seguridad:** JWT, RBAC, hash argon2/bcrypt, HTTPS/TLS.
+* **Notificaciones:** Proveedor de mensajería (Twilio) por API y SMTP.
+* **Hosting / Despliegue:** Docker en PaaS / nube de costo acotado.
+* **CI / Pruebas:** GitHub Actions, pytest y Locust.
