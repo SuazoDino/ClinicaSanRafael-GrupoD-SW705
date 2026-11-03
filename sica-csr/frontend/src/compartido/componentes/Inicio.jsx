@@ -1,23 +1,34 @@
 import { Link } from 'react-router-dom'
 import { RUTAS } from '../../rutas.js'
 import { useSesion } from '../autenticacion/ContextoSesion.jsx'
-import isotipo from '../../assets/isotipo-clinica-san-rafael.png'
+import Icono, { NOMBRE_ROL } from './Icono.jsx'
+
+const saludo = (hora) => (hora < 12 ? 'Buenos días' : hora < 19 ? 'Buenas tardes' : 'Buenas noches')
 
 export default function Inicio() {
   const { usuario, tieneRol } = useSesion()
   const accesos = RUTAS.filter((r) => r.enMenu !== false && tieneRol(r.roles))
+
   return (
     <section>
       <div className="bienvenida">
-        <div>
-          <p className="bienvenida__clinica">Clínica San Rafael</p>
-          <h1>Bienvenido, {usuario.username}</h1>
-          <p className="texto-suave">Elige un módulo para empezar.</p>
-        </div>
-        <img src={isotipo} alt="" className="bienvenida__logo" />
+        <h1>{saludo(new Date().getHours())}, {usuario.username}</h1>
+        <p className="texto-suave">
+          Ingresaste como <strong>{NOMBRE_ROL[usuario.rol] ?? usuario.rol}</strong>. Elige un módulo para empezar.
+        </p>
       </div>
+
       <div className="accesos">
-        {accesos.map((r) => <Link key={r.ruta} to={r.ruta} className="tarjeta acceso">{r.titulo}</Link>)}
+        {accesos.map((r) => (
+          <Link key={r.ruta} to={r.ruta} className="acceso">
+            <span className="acceso__icono"><Icono nombre={r.icono} tamano={22} /></span>
+            <span className="acceso__texto">
+              <strong>{r.titulo}</strong>
+              {r.descripcion && <span className="texto-suave">{r.descripcion}</span>}
+            </span>
+            <Icono nombre="flecha" className="acceso__flecha" />
+          </Link>
+        ))}
       </div>
     </section>
   )

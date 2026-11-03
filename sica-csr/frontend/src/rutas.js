@@ -2,5 +2,6 @@
 // para un módulo nuevo (p. ej. m3_laboratorio) basta con importarlo y agregarlo aquí.
 import rutasM1 from './modulos/m1_hce/rutas.js'
 import rutasM2 from './modulos/m2_agenda/rutas.js'
+import rutasAdministracion from './modulos/administracion/rutas.js'
 
-export const RUTAS = [...rutasM1, ...rutasM2]
+export const RUTAS = [...rutasM1, ...rutasM2, ...rutasAdministracion]
