@@ -1,0 +1,87 @@
+/* Estilos globales. Colores y medidas en variables para mantener todo consistente. */
+:root {
+  --color-primario: #0f6e6e;
+  --color-primario-oscuro: #0b5454;
+  --color-fondo: #f4f6f7;
+  --color-superficie: #ffffff;
+  --color-texto: #1d2a2f;
+  --color-suave: #5f6f75;
+  --color-borde: #d9e0e3;
+  --color-error: #b3261e;
+  --color-exito: #1e7b3a;
+  --color-info: #1d5fa8;
+  --radio: 8px;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  color: var(--color-texto);
+  background: var(--color-fondo);
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--color-fondo); }
+h1 { font-size: 1.5rem; margin: 0 0 1rem; }
+h2 { font-size: 1.15rem; margin: 0 0 .75rem; }
+
+/* Estructura */
+.layout { display: flex; min-height: 100vh; }
+.layout__principal { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.layout__cabecera {
+  display: flex; justify-content: flex-end; align-items: center; gap: 1rem;
+  padding: .75rem 1.5rem; background: var(--color-superficie); border-bottom: 1px solid var(--color-borde);
+}
+.layout__contenido { padding: 1.5rem; max-width: 1100px; width: 100%; }
+
+.menu { width: 220px; background: var(--color-primario-oscuro); padding: 1rem .5rem; display: flex; flex-direction: column; gap: .25rem; }
+.menu a { color: #e6f2f2; text-decoration: none; padding: .55rem .75rem; border-radius: var(--radio); }
+.menu a:hover { background: rgba(255, 255, 255, .1); }
+.menu a.active:not(.menu__marca) { background: rgba(255, 255, 255, .18); font-weight: 600; }
+.menu__marca { font-weight: 700; font-size: 1.1rem; margin-bottom: .75rem; }
+
+@media (max-width: 720px) {
+  .layout { flex-direction: column; }
+  .menu { width: 100%; flex-direction: row; flex-wrap: wrap; }
+  .menu__marca { margin: 0; }
+  .layout__contenido { padding: 1rem; }
+}
+
+/* Componentes */
+.tarjeta { background: var(--color-superficie); border: 1px solid var(--color-borde); border-radius: var(--radio); padding: 1.25rem; margin-bottom: 1rem; }
+.fila { display: flex; gap: .75rem; align-items: flex-end; flex-wrap: wrap; }
+.formulario { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: .75rem 1rem; }
+.formulario h2, .ancho-completo { grid-column: 1 / -1; }
+
+label { display: flex; flex-direction: column; gap: .3rem; font-size: .9rem; color: var(--color-suave); }
+input, textarea, select {
+  font: inherit; color: var(--color-texto); padding: .55rem .7rem;
+  border: 1px solid var(--color-borde); border-radius: var(--radio); background: #fff;
+}
+input:focus, textarea:focus, select:focus { outline: 2px solid var(--color-primario); outline-offset: -1px; }
+
+.boton {
+  font: inherit; cursor: pointer; border: none; border-radius: var(--radio); padding: .6rem 1.1rem;
+  background: var(--color-primario); color: #fff; text-decoration: none; display: inline-block;
+}
+.boton:hover { background: var(--color-primario-oscuro); }
+.boton:disabled { opacity: .55; cursor: not-allowed; }
+.boton--secundario { background: transparent; color: var(--color-primario); border: 1px solid var(--color-primario); }
+.boton--secundario:hover { background: #e7f1f1; }
+
+.alerta { padding: .7rem 1rem; border-radius: var(--radio); background: #eef3f8; color: var(--color-info); margin: 0 0 1rem; }
+.alerta--error { background: #fbeceb; color: var(--color-error); }
+.alerta--exito { background: #e8f5ec; color: var(--color-exito); }
+
+.datos { display: grid; grid-template-columns: max-content 1fr; gap: .35rem 1rem; margin: 0 0 1rem; }
+.datos dt { color: var(--color-suave); }
+.datos dd { margin: 0; }
+
+.texto-suave { color: var(--color-suave); }
+.cargando { padding: 2rem; color: var(--color-suave); }
+
+.accesos { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; }
+.acceso { text-decoration: none; color: var(--color-primario-oscuro); font-weight: 600; }
+.acceso:hover { border-color: var(--color-primario); }
+
+/* Login */
+.login { min-height: 100vh; display: grid; place-items: center; padding: 1rem; }
+.login__tarjeta { width: 100%; max-width: 360px; display: flex; flex-direction: column; gap: .9rem; }
+.login__tarjeta h1 { margin: 0; color: var(--color-primario-oscuro); }
+.login__tarjeta p { margin: 0; }

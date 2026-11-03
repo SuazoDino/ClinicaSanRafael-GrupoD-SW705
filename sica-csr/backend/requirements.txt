@@ -1,14 +1,23 @@
-fastapi
-uvicorn[standard]
-sqlalchemy
-alembic
-psycopg[binary]
-pydantic-settings
-email-validator
-python-multipart
-pyjwt
-argon2-cffi
-apscheduler
-httpx
-pytest
-locust
+# API
+fastapi==0.115.12
+uvicorn[standard]==0.34.0
+pydantic-settings==2.8.1
+email-validator==2.2.0
+python-multipart==0.0.20
+
+# Base de datos
+sqlalchemy==2.0.40
+alembic==1.15.2
+psycopg[binary]==3.2.6
+
+# Seguridad
+pyjwt==2.10.1
+argon2-cffi==23.1.0
+
+# Recordatorios y mensajería
+apscheduler==3.11.0
+httpx==0.28.1
+
+# Pruebas
+pytest==8.3.5
+locust==2.33.2

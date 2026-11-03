@@ -33,11 +33,11 @@ Fuera de alcance: pasarela de pagos en línea, integración directa con platafor
 
 ## Arquitectura
 
-Arquitectura en capas con una API REST monolítica modular.
+Arquitectura en capas con una API REST monolítica modular. El código está en [`sica-csr/`](sica-csr/).
 
-- **Presentación:** SPA en React (`frontend/`).
-- **Negocio:** API en FastAPI (`backend/`), organizada en módulos independientes (`m1_hce`, `m2_agenda`) y un núcleo compartido con autenticación, auditoría y notificaciones.
-- **Datos:** PostgreSQL con migraciones Alembic (`db/`).
+- **Presentación:** SPA en React (`sica-csr/frontend/`).
+- **Negocio:** API en FastAPI (`sica-csr/backend/`), organizada en módulos independientes (`m1_hce`, `m2_agenda`) y un núcleo compartido con autenticación, auditoría y notificaciones.
+- **Datos:** PostgreSQL con migraciones Alembic (`sica-csr/db/`).
 
 Reglas del diseño:
 
@@ -45,6 +45,8 @@ Reglas del diseño:
 2. Cada módulo es dueño de sus tablas y se comunica con los demás solo por servicios o endpoints.
 3. No hay borrado físico en tablas clínicas: las entradas se anulan con motivo, usuario y fecha, y un trigger de la base bloquea el `DELETE`.
 4. Acceso por rol (JWT) y bitácora de auditoría inmutable.
+
+Para agregar modelos, endpoints o pantallas, ver la **[Guía de desarrollo](sica-csr/GUIA_DESARROLLO.md)**.
 
 ## Stack
 
@@ -57,61 +59,60 @@ Reglas del diseño:
 | **Frontend Framework / Build** | React, Vite |
 | **Pruebas (Testing & Load)** | pytest, Locust |
 | **Contenedorización** | Docker |
+| **Integración continua** | GitHub Actions |
 
 ## Estructura
 
 ```
-backend/app/
-├── nucleo/          autenticación, auditoría, notificaciones, configuración
-├── modulos/
-│   ├── m1_hce/      modelos, esquemas, servicios, rutas
-│   └── m2_agenda/   modelos, esquemas, servicios, rutas
-└── main.py
-frontend/src/
-├── compartido/      cliente HTTP, sesión, layout
-└── modulos/         pantallas de M1 y M2
-db/                  migraciones, esquema SQL y datos de prueba
-pruebas/             unitarias, integración y rendimiento
-docs/                documentación de ingeniería
+sica-csr/
+├── backend/app/
+│   ├── nucleo/          autenticación, auditoría, notificaciones, configuración
+│   ├── modulos/
+│   │   ├── m1_hce/      modelos, esquemas, servicios, rutas
+│   │   └── m2_agenda/   modelos, esquemas, servicios, rutas
+│   └── main.py
+├── frontend/src/
+│   ├── compartido/      cliente HTTP, sesión, layout
+│   └── modulos/         pantallas de M1 y M2
+├── db/                  migraciones, esquema SQL y datos de prueba
+└── pruebas/             unitarias, integración y rendimiento
+TallerSW/                documentación de ingeniería
 ```
 
 ## Ejecución local
 
-Requisitos: Python 3.12, Node.js 20 o superior y PostgreSQL 16.
+Requisito: Docker. Desde la carpeta `sica-csr/`:
 
 ```bash
 cp .env.example .env
+docker compose up --build
 ```
 
-Base de datos:
+- Frontend: http://localhost:5173
+- API y documentación interactiva: http://localhost:8000/docs
+- Usuarios de prueba (contraseña `Sica2026!`): `admin`, `recepcion`, `enfermera`, `medico`, `cardiologo`
+
+Al iniciar se aplican las migraciones y se cargan los datos ficticios. Si un puerto ya está ocupado, cámbialo en el `.env` (`PUERTO_WEB`, `PUERTO_API`, `PUERTO_DB`).
+
+<details>
+<summary>Sin Docker (Python 3.12, Node.js 20+ y PostgreSQL 16 instalados)</summary>
 
 ```bash
-cd db
-alembic upgrade head
+cd sica-csr && cp .env.example .env    # ajustar DATABASE_URL
+cd db && alembic upgrade head && python cargar_datos_prueba.py && cd ..
+cd backend && python -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt
+uvicorn app.main:app --reload          # en otra terminal:
+cd frontend && npm install && npm run dev
 ```
-
-Backend (http://localhost:8000, documentación en `/docs`):
-
-```bash
-cd backend
-python -m venv .venv
-source .venv/bin/activate        # Windows: .venv\Scripts\activate
-pip install -r requirements.txt
-uvicorn app.main:app --reload
-```
-
-Frontend (http://localhost:5173):
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
+</details>
 
 ## Pruebas
 
+Desde `sica-csr/`, con la base de datos levantada (`docker compose up -d db`):
+
 ```bash
 pytest
+python pruebas/rendimiento/generar_datos_carga.py
 locust -f pruebas/rendimiento/locustfile.py --host http://localhost:8000
 ```
 

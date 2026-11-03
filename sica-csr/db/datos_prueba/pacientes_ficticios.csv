@@ -1,0 +1,11 @@
+dni,nombres,apellidos,telefono,email,fecha_nacimiento
+70000001,Juan,Pérez García,+51900000001,juan.perez@ejemplo.pe,1985-03-12
+70000002,Carmen,López Ruiz,+51900000002,carmen.lopez@ejemplo.pe,1992-07-25
+70000003,Miguel,Sánchez Torres,+51900000003,,1978-11-02
+70000004,Elena,Gómez Vega,+51900000004,elena.gomez@ejemplo.pe,2001-01-30
+70000005,Raúl,Díaz Rojas,+51900000005,raul.diaz@ejemplo.pe,1969-05-18
+70000006,Patricia,Morales Chávez,+51900000006,,1995-09-09
+70000007,Diego,Herrera Luna,+51900000007,diego.herrera@ejemplo.pe,2015-04-21
+70000008,Sofía,Ramos Medina,+51900000008,sofia.ramos@ejemplo.pe,1988-12-14
+70000009,Andrés,Cruz Navarro,+51900000009,,1959-08-03
+70000010,Valeria,Ortiz Campos,+51900000010,valeria.ortiz@ejemplo.pe,1999-02-27
