@@ -24,8 +24,8 @@
 
 * **[04. Prototipo, Planificación y Sustentación](04_prototipo_y_planificacion/)**
   * [`01_prototipo_ux_ui.md`](04_prototipo_y_planificacion/01_prototipo_ux_ui.md) - Wireframes y flujo de navegación UX/UI.
-  * [`02_plan_release.md`](04_prototipo_y_planificacion/02_plan_release.md) - Plan de release, Sprint Backlog 1 y Definition of Done.
-  * [`03_guion_sustentacion.md`](04_prototipo_y_planificacion/03_guion_sustentacion.md) - Guion de sustentación de 15 minutos.
+  * [`02_plan_release.md`](04_prototipo_y_planificacion/02_plan_release.md) - Plan de release, objetivo y Sprint Backlog 1, tareas técnicas, cronograma y Definition of Done.
+  * `03_guion_sustentacion.md` - Guion de sustentación de 15 minutos *(pendiente)*.
 
 * **[assets/](assets/)**
   * Carpeta destinada para almacenar los diagramas, imágenes y recursos visuales del proyecto.

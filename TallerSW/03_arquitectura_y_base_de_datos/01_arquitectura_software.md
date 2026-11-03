@@ -35,6 +35,7 @@
 * **Base de datos:** PostgreSQL 16.
 * **Frontend:** React + Vite (SPA).
 * **Seguridad:** JWT, RBAC, hash argon2/bcrypt, HTTPS/TLS.
-* **Notificaciones:** Proveedor de mensajería (Twilio) por API y SMTP.
-* **Hosting / Despliegue:** Docker en PaaS / nube de costo acotado.
+* **Notificaciones:** Twilio (SMS/WhatsApp) en cuenta de prueba (*trial/sandbox*) durante desarrollo y demostración, y correo por SMTP como canal sin costo. En producción el costo por mensaje de Twilio lo asume la clínica y se justifica por la reducción del *no-show* (18% → 8%).
+* **Tareas programadas:** APScheduler dentro de la API para generar y enviar los recordatorios 24 h antes de la cita.
+* **Hosting / Despliegue:** Docker en PaaS con capa gratuita o de costo acotado (p. ej., Render o Railway) y PostgreSQL gestionado.
 * **CI / Pruebas:** GitHub Actions, pytest y Locust.

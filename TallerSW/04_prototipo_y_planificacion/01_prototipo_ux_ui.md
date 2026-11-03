@@ -10,12 +10,12 @@
 
 ![SAD](../assets/Prototipos/AgendaCitas.png)
 
-## 7.3. Pantalla — Historia clínica unificada (M1 • HU04, HU05)
+## 7.3. Pantalla — Historia clínica unificada (M1 • HU04, HU05, HU06, HU12)
 * **Descripción:** Vista consolidada de antecedentes, alergias y consultas previas con diagnósticos CIE-10 y recetas. Permite registrar nuevas consultas y anular entradas con motivo.
 
 ![SAD](../assets/Prototipos/HistoriaClínicaUnificada.png)
 
-## 7.4. Pantalla — Triaje y Signos vitales (M2 • HU11)
+## 7.4. Pantalla — Triaje y Signos vitales (M1 • HU11)
 * **Descripción:** Permite a la enfermera registrar presión arterial, frecuencia cardíaca, temperatura, peso y talla, actualizando el estado de la cita a <<Triado>>.
 
 ![SAD](../assets/Prototipos/Triaje-SignosVitales.png)

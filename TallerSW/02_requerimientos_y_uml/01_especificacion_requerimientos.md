@@ -7,7 +7,7 @@
 | **RF02** | Registrar triaje y funciones vitales (PA, FC, Temp, Peso, Talla). | M1 | Should |
 | **RF03** | El sistema debe permitir al médico consultar y desplegar el expediente clínico unificado (antecedentes, diagnósticos y atenciones previas) del paciente. | M1 | Must |
 | **RF04** | Registrar atenciones médicas con codificación diagnóstica CIE-10. | M1 | Must |
-| **RF05** | Mandar recordatorios vía WhatsApp o SMS para que el usuario no olvide su cita. | M2 | Must |
+| **RF05** | Enviar confirmaciones y recordatorios automáticos de cita por SMS/WhatsApp y correo electrónico. | M2 | Must |
 | **RF06** | Anular entradas de la HCE indicando motivo, sin eliminarlas físicamente. | M1 | Must |
 | **RF07** | Mostrar los cupos libres consolidados por especialidad, médico y fecha. | M2 | Must |
 | **RF08** | Registrar citas impidiendo asignar un cupo ya ocupado. | M2 | Must |
@@ -18,40 +18,53 @@
 | ID | Descripción | Atributo | Verificación |
 | :--- | :--- | :--- | :--- |
 | **RFN01** | Control RBAC y bitácora de auditoría (Ley N.° 29733). | Seguridad | Validación de tokens JWT y logs de auditoría en BD. |
-| **RFN02** | Apertura de HCE <2s para base de 8000 pacientes. | Rendimiento | Pruebas de carga con Apache JMeter / Locust. |
+| **RFN02** | Apertura de HCE <2s para base de 8000 pacientes. | Rendimiento | Pruebas de carga con Locust (percentil 95). |
 | **RFN03** | Disponibilidad del 99.5% durante el horario de atención. | Disponibilidad | Pings automatizados y Health Checks en segundo plano. |
 | **RFN04** | Prohibido borrado físico (soft delete obligatorio). | Trazabilidad | Triggers y restricciones SQL a nivel de base de datos. |
 | **RFN05** | Máximo 3 clics para operaciones principales. | Usabilidad | Pruebas de usabilidad y métrica SUS > 80. |
 
 ## 3.3. Historias de usuario (con criterios de aceptación INVEST)
-* **HU01 (8 pts) Como Recepcionista quiero registrar los datos del paciente para crear su HCE.**
-  * *Criterio:* Dado un DNI nuevo, cuando se guarden los datos, se asignará un número de HCE único en <2s.
-* **HU02 (5 pts) Como Médico quiero añadir contexto a la historia clínica del paciente para tener un mejor registro de su diagnóstico.**
-  * *Criterio:* Dada una nueva consulta, cuando el paciente comente su experiencia y atraviesa ciertos exámenes, entonces se registrará eso como parte de su HCE.
-* **HU03 (3 pts) Como recepcionista, quiero reprogramar o cancelar una cita, para liberar el cupo y reasignarlo.**
-  * *Criterio:* Dado una cita programada, cuando la cancelo indicando el motivo, entonces el cupo vuelve a mostrarse como disponible.
-* **HU04 (5 pts) Como paciente, quiero recibir un recordatorio 24 h antes de mi cita, para no faltar o cancelarla a tiempo.**
-  * *Criterio:* Dado una cita para mañana, cuando faltan 24 h, entonces recibo un mensaje con fecha, hora y médico, y la opción de confirmar o cancelar.
-* **HU05 (5 pts) Como recepcionista quiero registrar a un paciente con su DNI, para evitar historias clínicas duplicadas.**
-  * *Criterio:* Dado un DNI ya registrado, cuando intento registrarme otra vez, entonces el sistema me muestra el paciente existente.
-* **HU06 (8 pts) Como médico, quiero consultar en una sola vista los antecedentes, alergias y atenciones previas del paciente, para evitar errores de medicación.**
-  * *Criterio:* Dado un paciente atendido en Cardiología y Medicina Interna, cuando abro su HCE, entonces veo ambas atenciones con sus recetas en menos de 2 s.
-* **HU07 (8 pts) Como médico, quiero registrar el diagnóstico con el catálogo CIE-10 y la receta, para dejar la atención codificada y legible.**
-  * *Criterio:* Dada una consulta abierta, cuando busco «diabetes», entonces el sistema sugiere códigos CIE-10 (p. ej., E11) y guarda el elegido con la receta.
-* **HU08 (5 pts) Como enfermera quiero registrar los signos vitales en el triaje, para que el médico los vea sin volver a tomarlos.**
-  * *Criterio:* Dado un paciente en espera, cuando registré sus signos vitales, entonces aparecen en la consulta del médico y la cita pasa a <<Triado>>.
+Los identificadores y puntos de esta sección son los mismos del product backlog (3.4) y del Sprint Backlog (8.2).
+
+* **HU01 (5 pts) Como recepcionista, quiero ver los cupos libres consolidados por especialidad, médico y fecha, para agendar en menos de 3 minutos.** *(RF07, RF09)*
+  * *Criterio:* Dada una especialidad y una fecha, cuando consulto la agenda, entonces veo por médico los cupos libres y ocupados según su horario de atención.
+* **HU02 (3 pts) Como recepcionista, quiero que el sistema bloquee los cupos ocupados, para no asignar dos pacientes al mismo horario.** *(RF08)*
+  * *Criterio:* Dado un cupo ya reservado, cuando intento registrar otra cita en el mismo médico, fecha y hora, entonces el sistema rechaza la operación (HTTP 409) y me pide elegir otro cupo.
+* **HU03 (3 pts) Como recepcionista, quiero registrar a un paciente con su DNI, para crear su HCE sin duplicados.** *(RF01)*
+  * *Criterio 1:* Dado un DNI nuevo, cuando guardo los datos, entonces se crea el paciente con un número de HCE único en menos de 2 s.
+  * *Criterio 2:* Dado un DNI ya registrado, cuando intento registrarlo otra vez, entonces el sistema me muestra el paciente y la HCE existentes.
+* **HU04 (5 pts) Como médico, quiero consultar en una sola vista los antecedentes, alergias y atenciones previas del paciente, para evitar errores de medicación.** *(RF03, RFN02)*
+  * *Criterio:* Dado un paciente atendido en Cardiología y Medicina Interna, cuando abro su HCE, entonces veo ambas atenciones con sus diagnósticos y recetas en menos de 2 s.
+* **HU05 (3 pts) Como médico, quiero registrar la atención con diagnóstico CIE-10 y receta, para dejar la consulta codificada y legible.** *(RF04)*
+  * *Criterio:* Dada una cita triada, cuando busco «diabetes», entonces el sistema sugiere códigos CIE-10 (p. ej., E11), y al guardar queda la consulta con motivo, evolución, diagnóstico principal y receta, y la cita pasa a «atendida».
+* **HU06 (2 pts) Como médico, quiero imprimir la receta, para entregársela al paciente.** *(RF04)*
+  * *Criterio:* Dada una consulta con receta, cuando pulso «Imprimir», entonces se genera un formato imprimible con los datos del paciente, médico, diagnóstico e indicaciones.
+* **HU07 (2 pts) Como recepcionista, quiero marcar la asistencia o inasistencia del paciente, para medir el no-show.** *(RF10)*
+  * *Criterio:* Dada una cita del día, cuando marco «no asistió», entonces la cita pasa a «inasistente»; si asistió, queda «confirmada» y disponible para triaje.
+* **HU08 (2 pts) Como médico, quiero ver mi agenda del día, para saber a qué pacientes atiendo y en qué estado están.** *(RF09)*
+  * *Criterio:* Dado que inicio sesión como médico, cuando abro «Mi agenda», entonces veo solo mis citas del día ordenadas por hora con su estado.
+* **HU09 (5 pts) Como paciente, quiero recibir un recordatorio 24 h antes de mi cita, para no faltar o cancelarla a tiempo.** *(RF05)*
+  * *Criterio:* Dada una cita para mañana, cuando faltan 24 h, entonces recibo un mensaje con fecha, hora y médico, y la opción de confirmar o cancelar; mi respuesta actualiza el estado de la cita.
+* **HU10 (3 pts) Como recepcionista, quiero reprogramar o cancelar una cita, para liberar el cupo y reasignarlo.** *(RF10)*
+  * *Criterio:* Dada una cita registrada, cuando la cancelo indicando el motivo, entonces el cupo vuelve a mostrarse como disponible.
+* **HU11 (5 pts) Como enfermera, quiero registrar los signos vitales en el triaje, para que el médico los vea sin volver a tomarlos.** *(RF02)*
+  * *Criterio:* Dado un paciente en espera, cuando registro sus signos vitales, entonces aparecen en la consulta del médico y la cita pasa a «triada».
+* **HU12 (3 pts) Como médico, quiero anular una entrada de la HCE indicando el motivo, para corregir errores sin perder la trazabilidad.** *(RF06, RFN04)*
+  * *Criterio:* Dada una consulta registrada por error, cuando la anulo con motivo, entonces se muestra como «anulada» con autor y fecha, sigue visible en la HCE y no se puede borrar físicamente.
 
 ## 3.4. Product backlog priorizado (MoSCoW)
-| ID | Historia (resumen) | Módulo | Sprint | Puntos |
-| :---: | :--- | :---: | :---: | :---: |
-| **HU01** | Ver cupos libres consolidados | M2 | 1 | 5 |
-| **HU02** | Bloquear cupo ocupado | M2 | 1 | 3 |
-| **HU03** | Registrar paciente con DNI único | M1 | 1 | 3 |
-| **HU04** | Consultar HCE unificada | M1 | 1 | 5 |
-| **HU05** | Registrar diagnósticos CIE-10 y receta | M1 | 1 | 3 |
-| **HU06** | Imprimir receta médica | M1 | 1 | 2 |
-| **HU07** | Marcar asistencia o inasistencia del paciente | M2 | 1 | 2 |
-| **HU08** | Ver agenda del día del médico | M2 | 1 | 2 |
-| **HU09** | Recordatorio automático de cita | M2 | 1 | 5 |
-| **HU10** | Programar o cancelar cita | M2 | 1 | 3 |
-| **HU11** | Registrar triaje y signos vitales | M1 | 1 | 5 |
+| ID | Historia (resumen) | Módulo | MoSCoW | Sprint | Puntos |
+| :---: | :--- | :---: | :---: | :---: | :---: |
+| **HU01** | Ver cupos libres consolidados | M2 | Must | 1 | 5 |
+| **HU02** | Bloquear cupo ocupado | M2 | Must | 1 | 3 |
+| **HU03** | Registrar paciente con DNI único | M1 | Must | 1 | 3 |
+| **HU04** | Consultar HCE unificada | M1 | Must | 1 | 5 |
+| **HU05** | Registrar atención con diagnóstico CIE-10 y receta | M1 | Must | 1 | 3 |
+| **HU06** | Imprimir receta médica | M1 | Could | 1 | 2 |
+| **HU07** | Marcar asistencia o inasistencia del paciente | M2 | Should | 1 | 2 |
+| **HU08** | Ver agenda del día del médico | M2 | Should | 1 | 2 |
+| **HU09** | Recordatorio automático de cita | M2 | Must | 1 | 5 |
+| **HU10** | Reprogramar o cancelar cita | M2 | Must | 1 | 3 |
+| **HU11** | Registrar triaje y signos vitales | M1 | Should | 1 | 5 |
+| **HU12** | Anular entrada de la HCE con motivo | M1 | Must | 1 | 3 |
+| | **Total Sprint 1** | | | | **41** |
