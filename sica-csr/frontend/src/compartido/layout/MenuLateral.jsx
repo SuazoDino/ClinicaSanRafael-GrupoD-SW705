@@ -1,13 +1,13 @@
 // El menú se arma solo a partir de src/rutas.js y muestra únicamente lo que el rol puede ver.
 import { NavLink } from 'react-router-dom'
 import { version } from '../../../package.json'
-import { RUTAS } from '../../rutas.js'
+import { RUTAS, tituloPara } from '../../rutas.js'
 import { useSesion } from '../autenticacion/ContextoSesion.jsx'
 import Icono from '../componentes/Icono.jsx'
 import Marca from '../componentes/Marca.jsx'
 
 export default function MenuLateral({ abierto = false, onCerrar }) {
-  const { tieneRol } = useSesion()
+  const { tieneRol, usuario } = useSesion()
   const visibles = RUTAS.filter((r) => r.enMenu !== false && tieneRol(r.roles))
   // Agrupa los enlaces por sección («Módulos», «Administración»…) en el orden en que aparecen
   const secciones = [...new Set(visibles.map((r) => r.seccion ?? 'Módulos'))]
@@ -30,7 +30,7 @@ export default function MenuLateral({ abierto = false, onCerrar }) {
           <p className="menu__seccion">{seccion}</p>
           {visibles.filter((r) => (r.seccion ?? 'Módulos') === seccion).map((r) => (
             <NavLink key={r.ruta} to={r.ruta} className="menu__enlace">
-              <Icono nombre={r.icono} /><span>{r.titulo}</span>
+              <Icono nombre={r.icono} /><span>{tituloPara(r, usuario.rol)}</span>
             </NavLink>
           ))}
         </div>

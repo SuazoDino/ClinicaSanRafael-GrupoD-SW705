@@ -3,11 +3,12 @@
 ![Digrama de casos de uso](../assets/casos-uso/1.png)
 
 ## 4.1. Diagrama de casos de uso
-* **Actores:** Recepcionista, Enfermera, Médico, Paciente y Mensajería (sistema externo).
+* **Actores:** Recepcionista, Enfermera, Médico, Administrador, Paciente y Mensajería (sistema externo).
 * **Descripción:** 
-  * Recepcionista: registra pacientes, agenda, reprograma o cancela citas y marca la asistencia.
+  * Recepcionista: registra pacientes, agenda, reprograma o cancela citas, marca la asistencia y consulta la agenda del día de cada médico.
   * Enfermera: registra el triaje.
   * Médico: ve su agenda del día, consulta la HCE unificada, registra el diagnóstico CIE-10 y la receta, y anula entradas con motivo.
+  * Administrador: registra y actualiza la filiación de pacientes y consulta el triaje del día en solo lectura; no accede a la HCE. En el Sprint 2 consulta los indicadores del Dashboard Gerencial (M5).
   * Paciente: recibe el recordatorio 24 h antes (enviado por un servicio de mensajería externo).
 * **Relaciones:** 
   * `<<include>>`: Registrar un paciente siempre valida DNI único; agendar una cita siempre consulta cupos libres; registrar diagnóstico siempre busca el código CIE-10.

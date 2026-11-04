@@ -5,3 +5,7 @@ import rutasM2 from './modulos/m2_agenda/rutas.js'
 import rutasAdministracion from './modulos/administracion/rutas.js'
 
 export const RUTAS = [...rutasM1, ...rutasM2, ...rutasAdministracion]
+
+// Título o descripción de una pantalla para el rol que inició sesión (p. ej. «Agenda por médico» en recepción)
+export const tituloPara = (ruta, rol) => ruta.tituloPorRol?.[rol] ?? ruta.titulo
+export const descripcionPara = (ruta, rol) => ruta.descripcionPorRol?.[rol] ?? ruta.descripcion

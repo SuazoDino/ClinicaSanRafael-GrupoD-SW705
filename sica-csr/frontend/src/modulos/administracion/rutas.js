@@ -4,6 +4,6 @@
 import Personal from './Personal/Personal.jsx'
 
 export default [
-  { ruta: '/personal', titulo: 'Personal asistencial', componente: Personal, roles: ['administrador'], seccion: 'Administración',
-    icono: 'personal', descripcion: 'Médicos y enfermería: datos, horarios y acceso al sistema.' },
+  { ruta: '/personal', titulo: 'Personal y usuarios', componente: Personal, roles: ['administrador'], seccion: 'Administración',
+    icono: 'personal', descripcion: 'Médicos, enfermería y recepción: datos, horarios, accesos y especialidades.' },
 ]

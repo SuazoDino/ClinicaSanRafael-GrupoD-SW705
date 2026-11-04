@@ -17,7 +17,7 @@
 ## 3.2. Requerimientos no funcionales
 | ID | Descripción | Atributo | Verificación |
 | :--- | :--- | :--- | :--- |
-| **RFN01** | Control RBAC y bitácora de auditoría (Ley N.° 29733). | Seguridad | Validación de tokens JWT y logs de auditoría en BD. |
+| **RFN01** | Control de acceso por rol (RBAC) según la matriz de la sección 3.5: cada rol accede solo a las funciones de su labor y ninguno tiene acceso total; toda operación sobre datos clínicos queda en la bitácora de auditoría (Ley N.° 29733). | Seguridad | Validación de tokens JWT, pruebas de acceso por rol (HTTP 403 fuera de la matriz) y logs de auditoría en BD. |
 | **RFN02** | Apertura de HCE <2s para base de 8000 pacientes. | Rendimiento | Pruebas de carga con Locust (percentil 95). |
 | **RFN03** | Disponibilidad del 99.5% durante el horario de atención. | Disponibilidad | Pings automatizados y Health Checks en segundo plano. |
 | **RFN04** | Prohibido borrado físico (soft delete obligatorio). | Trazabilidad | Triggers y restricciones SQL a nivel de base de datos. |
@@ -42,7 +42,8 @@ Los identificadores y puntos de esta sección son los mismos del product backlog
 * **HU07 (2 pts) Como recepcionista, quiero marcar la asistencia o inasistencia del paciente, para medir el no-show.** *(RF10)*
   * *Criterio:* Dada una cita del día, cuando marco «no asistió», entonces la cita pasa a «inasistente»; si asistió, queda «confirmada» y disponible para triaje.
 * **HU08 (2 pts) Como médico, quiero ver mi agenda del día, para saber a qué pacientes atiendo y en qué estado están.** *(RF09)*
-  * *Criterio:* Dado que inicio sesión como médico, cuando abro «Mi agenda», entonces veo solo mis citas del día ordenadas por hora con su estado.
+  * *Criterio 1:* Dado que inicio sesión como médico, cuando abro «Mi agenda», entonces veo solo mis citas del día ordenadas por hora con su estado.
+  * *Criterio 2:* Dado que inicio sesión como recepcionista, cuando abro «Agenda por médico» y elijo un médico, entonces veo sus citas del día con su estado, en solo lectura y sin acceso a la HCE.
 * **HU09 (5 pts) Como paciente, quiero recibir un recordatorio 24 h antes de mi cita, para no faltar o cancelarla a tiempo.** *(RF05)*
   * *Criterio:* Dada una cita para mañana, cuando faltan 24 h, entonces recibo un mensaje con fecha, hora y médico, y la opción de confirmar o cancelar; mi respuesta actualiza el estado de la cita.
 * **HU10 (3 pts) Como recepcionista, quiero reprogramar o cancelar una cita, para liberar el cupo y reasignarlo.** *(RF10)*
@@ -68,3 +69,23 @@ Los identificadores y puntos de esta sección son los mismos del product backlog
 | **HU11** | Registrar triaje y signos vitales | M1 | Should | 1 | 5 |
 | **HU12** | Anular entrada de la HCE con motivo | M1 | Must | 1 | 3 |
 | | **Total Sprint 1** | | | | **41** |
+
+## 3.5. Matriz de acceso por rol (RFN01)
+Cada rol accede solo a lo que necesita para su labor. El administrador **no** tiene acceso total: gestiona a las personas y los catálogos de la clínica, pero no registra ni consulta datos clínicos de la HCE (confidencialidad, Ley N.° 29733). Los indicadores que necesita para supervisar el negocio los obtiene de forma agregada en el Dashboard Gerencial (M5, Sprint 2).
+
+| Función | Recepcionista | Enfermera | Médico | Administrador |
+| :--- | :---: | :---: | :---: | :---: |
+| Registrar, buscar y actualizar la filiación del paciente (HU03, RF01) | Registra | — | — | Registra |
+| Cupos libres, agendar, reprogramar, cancelar y asistencia (HU01, HU02, HU07, HU10) | Registra | — | — | — |
+| Agenda del día por médico (HU08) | Consulta (cualquier médico) | — | Consulta (solo la suya) | — |
+| Triaje y signos vitales (HU11) | — | Registra | Consulta en la HCE | Consulta (solo lectura) |
+| HCE unificada, consulta CIE-10, receta y anulación (HU04, HU05, HU06, HU12) | — | — | Registra | — |
+| Personal y usuarios: médicos y su horario, enfermería, recepción; activar o desactivar accesos y restablecer contraseñas | — | — | — | Registra *(por aprobar)* |
+| Catálogo de especialidades | — | — | — | Registra *(por aprobar)* |
+| Facturación y copagos EPS (M4) | Por definir | — | — | Por definir *(Sprint 2)* |
+| Indicadores del Dashboard Gerencial (M5) | — | — | — | Consulta *(Sprint 2)* |
+
+* **Registra:** crea o modifica información. **Consulta:** solo lectura. **—:** sin acceso (la API responde HTTP 403).
+* **Filiación** son los datos personales (DNI, nombres, nacimiento, contacto); no incluye antecedentes, alergias ni atenciones, que son parte de la HCE.
+* **Por aprobar:** la gestión de personal, usuarios y especialidades no está en el Sprint 1 ni en el 2; existe como prototipo y se decidirá al cierre del proyecto. Usa tablas que ya existen (`medico`, `horario_medico`, `especialidad`, `usuario`, `rol`).
+* **Fuera de alcance por ahora:** sedes y tarifas no existen en el modelo de datos ni están definidas; se especificarán junto con la facturación (M4).

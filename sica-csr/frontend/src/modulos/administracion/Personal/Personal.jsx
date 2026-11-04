@@ -1,4 +1,5 @@
-// Administración del personal asistencial: médicos (datos, horario y acceso) y enfermería (acceso).
+// Administración del personal y usuarios: médicos (datos, horario y acceso), enfermería y recepción (acceso)
+// y el catálogo de especialidades.
 // PENDIENTE DE DECISIÓN (no está en Sprint 1 ni 2). PROTOTIPO sobre la BD simulada (ver ../api.js).
 // Nada se borra: a quien deja la clínica se le desactiva el acceso (usuario.activo).
 import { useEffect, useState } from 'react'
@@ -39,22 +40,42 @@ const sugerirUsuario = (nombres, apellidos) => {
   return `${limpio(nombres).charAt(0)}${limpio(apellidos.split(' ')[0] ?? '')}`
 }
 
+// Pestañas de la pantalla. Los roles de usuario son los de la tabla rol.
+const PESTANAS = [
+  { id: 'medicos', titulo: 'Médicos', nuevo: 'Nuevo médico' },
+  { id: 'enfermera', titulo: 'Enfermería', nuevo: 'Nueva enfermera', rol: 'enfermera' },
+  { id: 'recepcionista', titulo: 'Recepción', nuevo: 'Nuevo recepcionista', rol: 'recepcionista' },
+  { id: 'especialidades', titulo: 'Especialidades', nuevo: 'Nueva especialidad' },
+]
+const NOMBRE_ROL = { enfermera: 'Enfermera', recepcionista: 'Recepcionista', medico: 'Médico' }
+
 export default function Personal() {
   const [pestana, setPestana] = useState('medicos')
   const [medicos, setMedicos] = useState(null)
-  const [enfermeras, setEnfermeras] = useState(null)
+  const [usuarios, setUsuarios] = useState(null)
+  const [especialidades, setEspecialidades] = useState(null)
   const [mensaje, setMensaje] = useState(null)
   const [modal, setModal] = useState(null) // { tipo, dato }
   const [version, setVersion] = useState(0)
 
   useEffect(() => {
     medicosAdminApi.listar().then(setMedicos)
-    usuariosAdminApi.listar('enfermera').then(setEnfermeras)
+    usuariosAdminApi.listar().then(setUsuarios)
+    especialidadesApi.listar().then(setEspecialidades)
   }, [version])
 
+  const actual = PESTANAS.find((p) => p.id === pestana)
+  const cuenta = (p) => (p.id === 'medicos' ? medicos?.length : p.id === 'especialidades' ? especialidades?.length
+    : usuarios?.filter((u) => u.rol === p.rol).length)
   const recargar = () => setVersion((v) => v + 1)
   const cerrar = () => setModal(null)
   const listo = (texto, extra) => { setModal(extra ?? null); setMensaje({ tipo: 'exito', texto }); recargar() }
+
+  function nuevo() {
+    if (pestana === 'medicos') setModal({ tipo: 'medico' })
+    else if (pestana === 'especialidades') setModal({ tipo: 'especialidad' })
+    else setModal({ tipo: 'usuario', rol: actual.rol })
+  }
 
   async function cambiarActivo(usuario) {
     try {
@@ -68,22 +89,22 @@ export default function Personal() {
 
   return (
     <section>
-      <Encabezado titulo="Personal asistencial" descripcion="Médicos y enfermería: datos, horario de atención y acceso al sistema.">
-        <button className="boton boton--con-icono" onClick={() => setModal({ tipo: pestana === 'medicos' ? 'medico' : 'enfermera' })}>
-          <Icono nombre="mas" /><span>{pestana === 'medicos' ? 'Nuevo médico' : 'Nueva enfermera'}</span>
-        </button>
+      <Encabezado titulo="Personal y usuarios" descripcion="Médicos, enfermería y recepción: datos, horarios, accesos y especialidades.">
+        <button className="boton boton--con-icono" onClick={nuevo}><Icono nombre="mas" /><span>{actual.nuevo}</span></button>
       </Encabezado>
 
       <div className="pestanas" role="tablist">
-        <button role="tab" aria-selected={pestana === 'medicos'} className={`pestana${pestana === 'medicos' ? ' pestana--activa' : ''}`}
-          onClick={() => setPestana('medicos')}>Médicos <span className="pestana__cuenta">{medicos?.length ?? '…'}</span></button>
-        <button role="tab" aria-selected={pestana === 'enfermeria'} className={`pestana${pestana === 'enfermeria' ? ' pestana--activa' : ''}`}
-          onClick={() => setPestana('enfermeria')}>Enfermería <span className="pestana__cuenta">{enfermeras?.length ?? '…'}</span></button>
+        {PESTANAS.map((p) => (
+          <button key={p.id} role="tab" aria-selected={pestana === p.id} className={`pestana${pestana === p.id ? ' pestana--activa' : ''}`}
+            onClick={() => { setPestana(p.id); setMensaje(null) }}>
+            {p.titulo} <span className="pestana__cuenta">{cuenta(p) ?? '…'}</span>
+          </button>
+        ))}
       </div>
 
       {mensaje && <p className={`alerta alerta--${mensaje.tipo}`}>{mensaje.texto}</p>}
 
-      {pestana === 'medicos' ? (
+      {pestana === 'medicos' && (
         <div className="tarjeta tarjeta--tabla">
           {medicos === null ? <p className="cargando">Cargando…</p> : (
             <table className="tabla">
@@ -115,24 +136,25 @@ export default function Personal() {
             </table>
           )}
         </div>
-      ) : (
+      )}
+
+      {actual.rol && (
+        <TablaUsuarios usuarios={usuarios?.filter((u) => u.rol === actual.rol)} rol={actual.rol}
+          onRestablecer={(u) => setModal({ tipo: 'clave', dato: u })} onActivo={cambiarActivo} />
+      )}
+
+      {pestana === 'especialidades' && (
         <div className="tarjeta tarjeta--tabla">
-          {enfermeras === null ? <p className="cargando">Cargando…</p> : enfermeras.length === 0 ? (
-            <div className="vacio vacio--plano"><p>Aún no hay personal de enfermería registrado.</p></div>
-          ) : (
+          {especialidades === null ? <p className="cargando">Cargando…</p> : (
             <table className="tabla">
-              <thead><tr><th>Usuario</th><th>Rol</th><th>Estado</th><th aria-label="Acciones" /></tr></thead>
+              <thead><tr><th>Especialidad</th><th>Médicos</th><th aria-label="Acciones" /></tr></thead>
               <tbody>
-                {enfermeras.map((u) => (
-                  <tr key={u.id_usuario} className={u.activo ? undefined : 'tabla__fila--apagada'}>
-                    <td data-titulo="Usuario"><strong>{u.username}</strong></td>
-                    <td data-titulo="Rol">Enfermera</td>
-                    <td data-titulo="Estado"><span className={`estado estado--${u.activo ? 'confirmada' : 'inasistente'}`}>{u.activo ? 'Activo' : 'Inactivo'}</span></td>
+                {especialidades.map((e) => (
+                  <tr key={e.id_especialidad}>
+                    <td data-titulo="Especialidad"><strong>{e.nombre}</strong></td>
+                    <td data-titulo="Médicos">{e.medicos || <span className="texto-suave">Ninguno aún</span>}</td>
                     <td className="tabla__acciones">
-                      <button className="boton-chico" onClick={() => setModal({ tipo: 'clave', dato: u })}><Icono nombre="candado" tamano={16} /><span>Restablecer contraseña</span></button>
-                      <button className={`boton-chico${u.activo ? ' boton-chico--peligro' : ' boton-chico--exito'}`} onClick={() => cambiarActivo(u)}>
-                        {u.activo ? 'Desactivar' : 'Activar'}
-                      </button>
+                      <button className="boton-chico" onClick={() => setModal({ tipo: 'especialidad', dato: e })}><Icono nombre="editar" tamano={16} /><span>Renombrar</span></button>
                     </td>
                   </tr>
                 ))}
@@ -155,16 +177,75 @@ export default function Personal() {
         <ModalHorario medico={modal.dato} claveNueva={modal.clave} onCerrar={cerrar}
           onGuardado={() => listo(`Horario de ${nombreCompleto(modal.dato)} guardado. Sus cupos ya se ven en la agenda.`)} />
       )}
-      {modal?.tipo === 'acceso' && (
-        <ModalAccesoMedico medico={modal.dato} onCerrar={cerrar} onCambio={recargar} />
-      )}
-      {modal?.tipo === 'enfermera' && (
-        <ModalNuevoUsuario rol="enfermera" onCerrar={cerrar} onCreado={recargar} />
-      )}
-      {modal?.tipo === 'clave' && (
-        <ModalRestablecer usuario={modal.dato} onCerrar={cerrar} />
+      {modal?.tipo === 'acceso' && <ModalAccesoMedico medico={modal.dato} onCerrar={cerrar} onCambio={recargar} />}
+      {modal?.tipo === 'usuario' && <ModalNuevoUsuario rol={modal.rol} onCerrar={cerrar} onCreado={recargar} />}
+      {modal?.tipo === 'clave' && <ModalRestablecer usuario={modal.dato} onCerrar={cerrar} />}
+      {modal?.tipo === 'especialidad' && (
+        <ModalEspecialidad especialidad={modal.dato} onCerrar={cerrar}
+          onGuardada={(e, esNueva) => listo(esNueva ? `Especialidad «${e.nombre}» creada. Ya se puede asignar a los médicos.` : 'Especialidad renombrada.')} />
       )}
     </section>
+  )
+}
+
+function TablaUsuarios({ usuarios, rol, onRestablecer, onActivo }) {
+  if (!usuarios) return <div className="tarjeta"><p className="cargando">Cargando…</p></div>
+  if (!usuarios.length) return <div className="vacio"><p>Aún no hay usuarios con el rol {NOMBRE_ROL[rol].toLowerCase()}.</p></div>
+  return (
+    <div className="tarjeta tarjeta--tabla">
+      <table className="tabla">
+        <thead><tr><th>Usuario</th><th>Rol</th><th>Estado</th><th aria-label="Acciones" /></tr></thead>
+        <tbody>
+          {usuarios.map((u) => (
+            <tr key={u.id_usuario} className={u.activo ? undefined : 'tabla__fila--apagada'}>
+              <td data-titulo="Usuario"><strong>{u.username}</strong></td>
+              <td data-titulo="Rol">{NOMBRE_ROL[u.rol]}</td>
+              <td data-titulo="Estado"><span className={`estado estado--${u.activo ? 'confirmada' : 'inasistente'}`}>{u.activo ? 'Activo' : 'Inactivo'}</span></td>
+              <td className="tabla__acciones">
+                <button className="boton-chico" onClick={() => onRestablecer(u)}><Icono nombre="candado" tamano={16} /><span>Restablecer contraseña</span></button>
+                <button className={`boton-chico${u.activo ? ' boton-chico--peligro' : ' boton-chico--exito'}`} onClick={() => onActivo(u)}>
+                  {u.activo ? 'Desactivar' : 'Activar'}
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
+function ModalEspecialidad({ especialidad, onCerrar, onGuardada }) {
+  const [nombre, setNombre] = useState(especialidad?.nombre ?? '')
+  const [error, setError] = useState('')
+  const [ocupado, setOcupado] = useState(false)
+
+  async function guardar(e) {
+    e.preventDefault()
+    setError('')
+    setOcupado(true)
+    try {
+      onGuardada(await especialidadesApi.guardar({ id_especialidad: especialidad?.id_especialidad, nombre }), !especialidad)
+    } catch (err) {
+      setError(mensajeError(err))
+      setOcupado(false)
+    }
+  }
+
+  return (
+    <Modal titulo={especialidad ? 'Renombrar especialidad' : 'Nueva especialidad'} onCerrar={onCerrar}
+      pie={(
+        <>
+          <button type="button" className="boton boton--secundario" onClick={onCerrar}>Cancelar</button>
+          <button className="boton" form="form-especialidad" disabled={ocupado}>{ocupado ? 'Guardando…' : 'Guardar'}</button>
+        </>
+      )}>
+      <form id="form-especialidad" onSubmit={guardar}>
+        {error && <p className="alerta alerta--error">{error}</p>}
+        <label>Nombre<input value={nombre} onChange={(e) => setNombre(e.target.value)} maxLength={60} required placeholder="Ej. Neurología" /></label>
+        <p className="nota">Las especialidades no se eliminan: los médicos y citas que la usan se conservan.</p>
+      </form>
+    </Modal>
   )
 }
 
@@ -433,7 +514,8 @@ function ModalNuevoUsuario({ rol, onCerrar, onCreado }) {
   }
 
   return (
-    <Modal titulo="Nueva enfermera" onCerrar={onCerrar} subtitulo="Crea su usuario para registrar triajes."
+    <Modal titulo={rol === 'enfermera' ? 'Nueva enfermera' : 'Nuevo recepcionista'} onCerrar={onCerrar}
+      subtitulo={rol === 'enfermera' ? 'Crea su usuario para registrar triajes.' : 'Crea su usuario para registrar pacientes y citas.'}
       pie={clave ? <button className="boton" onClick={onCerrar}>Listo</button> : (
         <>
           <button type="button" className="boton boton--secundario" onClick={onCerrar}>Cancelar</button>
@@ -444,7 +526,7 @@ function ModalNuevoUsuario({ rol, onCerrar, onCreado }) {
         <form id="form-usuario" onSubmit={crear}>
           {error && <p className="alerta alerta--error">{error}</p>}
           <label>Usuario
-            <input value={username} onChange={(e) => setUsername(e.target.value.toLowerCase())} maxLength={40} required placeholder="Ej. mquispe" />
+            <input value={username} onChange={(e) => setUsername(e.target.value.toLowerCase())} maxLength={40} required placeholder={rol === 'enfermera' ? 'Ej. mquispe' : 'Ej. lrojas'} />
           </label>
           <p className="nota">Minúsculas, números, punto o guion bajo (3 a 40 caracteres).</p>
         </form>

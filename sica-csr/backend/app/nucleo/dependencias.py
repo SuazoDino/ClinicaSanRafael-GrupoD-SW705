@@ -40,10 +40,13 @@ UsuarioActual = Annotated[Usuario, Depends(obtener_usuario_actual)]
 
 
 def requiere_roles(*roles: str):
-    """Permite el acceso solo a los roles indicados. El rol 'administrador' siempre pasa."""
+    """Permite el acceso solo a los roles indicados (matriz de acceso, ERS 3.5).
+
+    Ningún rol pasa siempre: el administrador también debe figurar en `roles` para entrar.
+    """
 
     def _verificar(usuario: UsuarioActual) -> Usuario:
-        if usuario.rol.nombre != "administrador" and usuario.rol.nombre not in roles:
+        if usuario.rol.nombre not in roles:
             raise Prohibido("Su rol no tiene permiso para esta operación")
         return usuario
 

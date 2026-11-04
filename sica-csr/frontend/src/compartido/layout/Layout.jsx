@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Outlet, matchPath, useLocation } from 'react-router-dom'
-import { RUTAS } from '../../rutas.js'
+import { RUTAS, tituloPara } from '../../rutas.js'
 import { useSesion } from '../autenticacion/ContextoSesion.jsx'
 import Icono, { NOMBRE_ROL } from '../componentes/Icono.jsx'
 import MenuLateral from './MenuLateral.jsx'
@@ -43,7 +43,7 @@ export default function Layout() {
             </button>
             <span className="cabecera__icono"><Icono nombre={pantalla.icono} /></span>
             <div className="cabecera__textos">
-              <strong className="cabecera__titulo">{pantalla.titulo}</strong>
+              <strong className="cabecera__titulo">{tituloPara(pantalla, usuario.rol)}</strong>
               <span className="cabecera__fecha">{capitalizar(fmtFecha.format(new Date()))}</span>
             </div>
           </div>

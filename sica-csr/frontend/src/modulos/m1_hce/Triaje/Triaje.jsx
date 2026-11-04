@@ -1,7 +1,9 @@
 // HU11 · Registrar triaje y signos vitales; la cita pasa de «confirmada» a «triada».
+// Solo la enfermera registra; el administrador consulta en solo lectura (ERS 3.5).
 // PROTOTIPO: citas y triajes vienen de la BD simulada (ver api.js).
 import { useEffect, useState } from 'react'
 import { mensajeError } from '../../../compartido/api/clienteHttp.js'
+import { useSesion } from '../../../compartido/autenticacion/ContextoSesion.jsx'
 import Encabezado from '../../../compartido/componentes/Encabezado.jsx'
 import EstadoCita from '../../../compartido/componentes/EstadoCita.jsx'
 import Icono from '../../../compartido/componentes/Icono.jsx'
@@ -32,6 +34,8 @@ function avisos(s) {
 }
 
 export default function Triaje() {
+  const { usuario } = useSesion()
+  const puedeRegistrar = usuario.rol === 'enfermera'
   const [citas, setCitas] = useState(null)
   const [idCita, setIdCita] = useState(null)
   const [signos, setSignos] = useState(VACIO)
@@ -76,7 +80,9 @@ export default function Triaje() {
   return (
     <section>
       <Encabezado titulo="Triaje y signos vitales"
-        descripcion="Registra los signos antes de la consulta; el médico los verá sin volver a tomarlos." />
+        descripcion={puedeRegistrar
+          ? 'Registra los signos antes de la consulta; el médico los verá sin volver a tomarlos.'
+          : 'Triajes del día registrados por enfermería (solo lectura).'} />
 
       <div className="dos-columnas dos-columnas--lista">
         <aside className="tarjeta">
@@ -126,6 +132,8 @@ export default function Triaje() {
                   <SignosVitales triaje={cita.triaje} />
                   <p className="nota"><Icono nombre="check" tamano={16} />Triaje registrado el {fechaHora(cita.triaje.fecha_registro)}. Ya no se modifica.</p>
                 </>
+              ) : !puedeRegistrar ? (
+                <p className="nota"><Icono nombre="reloj" tamano={16} />Pendiente de triaje: lo registra enfermería.</p>
               ) : (
                 <form className="formulario formulario--triaje" onSubmit={guardar}>
                   {CAMPOS.map(({ campo, etiqueta, unidad, paso }) => (

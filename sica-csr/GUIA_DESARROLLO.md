@@ -172,6 +172,9 @@ Las pruebas de historias pendientes están marcadas con `@pytest.mark.skip`: qui
 
 ## 8. Roles y usuarios de prueba
 
-Los roles son `administrador`, `recepcionista`, `enfermera` y `medico`; el administrador entra a todo.
+Los roles son `administrador`, `recepcionista`, `enfermera` y `medico`. **Ningún rol entra a todo**: qué puede
+hacer cada uno está en la matriz de acceso del ERS (`TallerSW/02_requerimientos_y_uml/01_especificacion_requerimientos.md`,
+sección 3.5). En el backend se declara con `requiere_roles(...)` y en el frontend con `roles` en `rutas.js`; el
+administrador solo entra donde aparece explícitamente.
 Usuarios cargados por `db/cargar_datos_prueba.py` (contraseña `Sica2026!`):
 `admin`, `recepcion`, `enfermera`, `medico`, `cardiologo`.

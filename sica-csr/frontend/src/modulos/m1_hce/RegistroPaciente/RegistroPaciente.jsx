@@ -1,6 +1,7 @@
 // HU03 · Registrar paciente con DNI único + RF01 (consultar y actualizar filiación). Usa la API real.
 // Pantalla de ejemplo para las demás: estado local → llamada a api.js → mostrar resultado o error con mensajeError().
 // Los pacientes no se eliminan (la BD lo impide): solo se registran y se actualizan.
+// Acceso (ERS 3.5): recepción y administrador gestionan la filiación; la HCE es solo del médico.
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { mensajeError } from '../../../compartido/api/clienteHttp.js'
@@ -158,6 +159,9 @@ function CamposPaciente({ datos, onCambiar, conHistoria }) {
 
 // Paso 1: DNI (si existe, se avisa y se abre el existente). Paso 2: datos del paciente nuevo.
 function ModalNuevoPaciente({ onCerrar, onRegistrado, onExistente }) {
+  // Antecedentes y alergias son parte de la HCE: los ingresa recepción al abrir la historia, no el administrador
+  const { usuario } = useSesion()
+  const conHistoria = usuario.rol === 'recepcionista'
   const [dni, setDni] = useState('')
   const [paso, setPaso] = useState('dni')
   const [datos, setDatos] = useState(VACIO)
@@ -217,7 +221,7 @@ function ModalNuevoPaciente({ onCerrar, onRegistrado, onExistente }) {
               inputMode="numeric" pattern="\d{8}" title="8 dígitos" placeholder="8 dígitos" required />
           </label>
         ) : (
-          <CamposPaciente datos={datos} onCambiar={setDatos} conHistoria />
+          <CamposPaciente datos={datos} onCambiar={setDatos} conHistoria={conHistoria} />
         )}
       </form>
     </Modal>

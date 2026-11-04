@@ -11,11 +11,11 @@
 // Los cambios se guardan en localStorage y se reinician cada día (o con reiniciarPrototipo()).
 import { diaSemana, hoyISO, sumarDias } from '../utilidades/formato.js'
 
-const CLAVE = 'sica_prototipo_v2'
+const CLAVE = 'sica_prototipo_v3'
 const DEMORA_MS = 200
 
 // ===== Catálogos (iguales a las semillas de la BD) =====
-export const ESPECIALIDADES = [
+const ESPECIALIDADES_SEMILLA = [
   { id_especialidad: 1, nombre: 'Medicina Interna' },
   { id_especialidad: 3, nombre: 'Cardiología' },
   { id_especialidad: 5, nombre: 'Pediatría' },
@@ -85,7 +85,8 @@ function crearSemilla() {
   const hoy = hoyISO()
   const bd = {
     fecha_semilla: hoy,
-    secuencias: { cita: 0, triaje: 0, consulta: 0, receta: 0, recordatorio: 0, medico: 8, horario: 40, usuario: 5 },
+    secuencias: { cita: 0, triaje: 0, consulta: 0, receta: 0, recordatorio: 0, medico: 8, horario: 40, usuario: 5, especialidad: 8 },
+    especialidades: structuredClone(ESPECIALIDADES_SEMILLA),
     medicos: structuredClone(MEDICOS_SEMILLA),
     horarios: structuredClone(HORARIOS_SEMILLA),
     usuarios: structuredClone(USUARIOS_SEMILLA),
@@ -237,7 +238,7 @@ export function idUsuarioActual() {
 // Médico con el nombre de su especialidad (como lo devolvería la API con un JOIN)
 export function medicoDe(datos, idMedico) {
   const m = datos.medicos.find((x) => x.id_medico === Number(idMedico))
-  return m && { ...m, especialidad: ESPECIALIDADES.find((e) => e.id_especialidad === m.id_especialidad)?.nombre }
+  return m && { ...m, especialidad: datos.especialidades.find((e) => e.id_especialidad === m.id_especialidad)?.nombre }
 }
 
 export const usernameDe = (datos, idUsuario) => datos.usuarios.find((u) => u.id_usuario === idUsuario)?.username ?? null

@@ -1,10 +1,11 @@
-// Llamadas a la API de administración del personal (médicos, horarios y usuarios de acceso).
+// Llamadas a la API de administración: personal (médicos, horarios), usuarios de acceso y especialidades.
 //
 // PENDIENTE DE DECISIÓN: no está en el Sprint 1 ni en el 2. Es PROTOTIPO sobre la BD simulada
 // (compartido/prototipo/bdPrueba.js) con las tablas reales: medico, horario_medico, especialidad, usuario y rol.
+// Sedes y tarifas no se incluyen: no existen en la BD ni están definidas (facturación es M4, Sprint 2).
 // Si se aprueba, cada función se reemplaza por la llamada http indicada en su comentario.
 import {
-  ESPECIALIDADES, errorApi, escribir, leer, medicoDe, siguienteId,
+  errorApi, escribir, leer, medicoDe, siguienteId,
 } from '../../compartido/prototipo/bdPrueba.js'
 import { diaSemana, hoyISO } from '../../compartido/utilidades/formato.js'
 
@@ -45,7 +46,27 @@ const citasPendientes = (datos, idMedico) => datos.citas.filter((c) => c.id_medi
   && c.fecha >= hoyISO() && ['registrada', 'confirmada'].includes(c.estado))
 
 export const especialidadesApi = {
-  listar: () => leer(() => ESPECIALIDADES),
+  // GET /admin/especialidades → con cuántos médicos tiene cada una
+  listar: () => leer((datos) => datos.especialidades
+    .map((e) => ({ ...e, medicos: datos.medicos.filter((m) => m.id_especialidad === e.id_especialidad).length }))
+    .sort((a, b) => a.nombre.localeCompare(b.nombre))),
+
+  // POST /admin/especialidades  ·  PUT /admin/especialidades/{id}   (nombre único, VARCHAR(60)); no se borran
+  guardar: ({ id_especialidad, nombre }) => escribir((datos) => {
+    const limpio = nombre.trim().replace(/\s+/g, ' ')
+    if (limpio.length < 3 || limpio.length > 60) throw errorApi(422, 'El nombre debe tener entre 3 y 60 caracteres.')
+    if (datos.especialidades.some((e) => e.nombre.toLowerCase() === limpio.toLowerCase() && e.id_especialidad !== id_especialidad)) {
+      throw errorApi(409, `La especialidad «${limpio}» ya existe.`)
+    }
+    if (id_especialidad) {
+      const e = datos.especialidades.find((x) => x.id_especialidad === id_especialidad)
+      e.nombre = limpio
+      return e
+    }
+    const nueva = { id_especialidad: siguienteId(datos, 'especialidad'), nombre: limpio }
+    datos.especialidades.push(nueva)
+    return nueva
+  }),
 }
 
 export const medicosAdminApi = {

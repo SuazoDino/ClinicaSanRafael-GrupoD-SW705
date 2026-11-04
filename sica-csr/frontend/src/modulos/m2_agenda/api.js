@@ -4,7 +4,7 @@
 // (compartido/prototipo/bdPrueba.js) con la forma que tendrá la respuesta real. Al implementar un endpoint,
 // se reemplaza solo el cuerpo de la función por la llamada http que figura en su comentario.
 import {
-  ESPECIALIDADES, errorApi, escribir, leer, medicoDe, recordarPaciente, siguienteId,
+  errorApi, escribir, leer, medicoDe, recordarPaciente, siguienteId,
 } from '../../compartido/prototipo/bdPrueba.js'
 import { diaSemana, hoyISO, sumarDias } from '../../compartido/utilidades/formato.js'
 
@@ -44,7 +44,7 @@ function programarRecordatorio(datos, cita) {
 
 // GET /disponibilidad/especialidades
 export const especialidadesApi = {
-  listar: () => leer(() => ESPECIALIDADES),
+  listar: () => leer((datos) => [...datos.especialidades].sort((a, b) => a.nombre.localeCompare(b.nombre))),
 }
 
 // GET /disponibilidad/medicos?id_especialidad=
@@ -135,7 +135,7 @@ export const citasApi = {
   }),
 }
 
-// HU08 · GET /agenda-medico?fecha= (el médico sale del token; el administrador puede indicar id_medico)
+// HU08 · GET /agenda-medico?fecha= (el médico sale del token; recepción indica id_medico, ERS 3.5)
 export const agendaMedicoApi = {
   delDia: ({ idMedico, fecha = hoyISO() }) => leer((datos) => datos.citas
     .filter((c) => c.id_medico === Number(idMedico) && c.fecha === fecha && ESTADOS_VIGENTES(c))

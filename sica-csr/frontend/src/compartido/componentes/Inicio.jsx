@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { RUTAS } from '../../rutas.js'
+import { RUTAS, descripcionPara, tituloPara } from '../../rutas.js'
 import { useSesion } from '../autenticacion/ContextoSesion.jsx'
 import Icono, { NOMBRE_ROL } from './Icono.jsx'
 
@@ -23,8 +23,8 @@ export default function Inicio() {
           <Link key={r.ruta} to={r.ruta} className="acceso">
             <span className="acceso__icono"><Icono nombre={r.icono} tamano={22} /></span>
             <span className="acceso__texto">
-              <strong>{r.titulo}</strong>
-              {r.descripcion && <span className="texto-suave">{r.descripcion}</span>}
+              <strong>{tituloPara(r, usuario.rol)}</strong>
+              {descripcionPara(r, usuario.rol) && <span className="texto-suave">{descripcionPara(r, usuario.rol)}</span>}
             </span>
             <Icono nombre="flecha" className="acceso__flecha" />
           </Link>

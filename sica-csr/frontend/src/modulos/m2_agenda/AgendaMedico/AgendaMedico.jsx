@@ -1,5 +1,5 @@
-// HU08 · Agenda del día del médico: a qué pacientes atiende y en qué estado están.
-// El médico ve la suya (id_medico de la sesión); el administrador elige el médico.
+// HU08 · Agenda del día por médico: a qué pacientes atiende y en qué estado están.
+// El médico ve la suya (id_medico de la sesión) y abre la HCE; recepción elige el médico y solo consulta (ERS 3.5).
 // PROTOTIPO: las citas vienen de la BD simulada (ver api.js).
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
@@ -29,7 +29,7 @@ export default function AgendaMedico() {
 
   return (
     <section>
-      <Encabezado titulo={esMedico ? 'Mi agenda del día' : 'Agenda del médico'}
+      <Encabezado titulo={esMedico ? 'Mi agenda del día' : 'Agenda por médico'}
         descripcion={`${fechaLarga(fecha)}${medico ? ` · ${nombreMedico(medico)}, ${medico.especialidad}` : ''}`}>
         {!esMedico && (
           <label className="selector-inline">
@@ -49,7 +49,7 @@ export default function AgendaMedico() {
         <div className="resumen__item"><span>No asistieron</span><strong>{cuenta(['inasistente'])}</strong></div>
       </div>
 
-      {siguiente && (
+      {esMedico && siguiente && (
         <div className="siguiente">
           <span className="siguiente__icono"><Icono nombre="reloj" tamano={22} /></span>
           <div className="siguiente__texto">
@@ -68,7 +68,7 @@ export default function AgendaMedico() {
         ) : (
           <table className="tabla">
             <thead>
-              <tr><th>Hora</th><th>Paciente</th><th>Estado</th><th>Triaje</th><th aria-label="Acciones" /></tr>
+              <tr><th>Hora</th><th>Paciente</th><th>Estado</th>{esMedico && <><th>Triaje</th><th aria-label="Acciones" /></>}</tr>
             </thead>
             <tbody>
               {citas.map((c) => (
@@ -79,6 +79,7 @@ export default function AgendaMedico() {
                     <span className="tabla__sub">{edad(c.paciente.fecha_nacimiento)} años · {c.paciente.numero_hce}</span>
                   </td>
                   <td data-titulo="Estado"><EstadoCita estado={c.estado} /></td>
+                  {esMedico && (
                   <td data-titulo="Triaje">
                     {c.triaje ? (
                       <span className="signos-linea">
@@ -86,13 +87,14 @@ export default function AgendaMedico() {
                       </span>
                     ) : <span className="texto-suave">—</span>}
                   </td>
-                  <td className="tabla__acciones">
+                  )}
+                  {esMedico && <td className="tabla__acciones">
                     {c.estado !== 'inasistente' && (
                       <Link className="boton-chico" to={`/hce/${c.id_paciente}`}>
                         <Icono nombre="historia" tamano={16} /><span>{c.estado === 'atendida' ? 'Ver HCE' : 'Abrir HCE'}</span>
                       </Link>
                     )}
-                  </td>
+                  </td>}
                 </tr>
               ))}
             </tbody>

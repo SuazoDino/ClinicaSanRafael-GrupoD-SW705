@@ -39,8 +39,8 @@ export function ProveedorSesion({ children }) {
     return cargarUsuario()
   }
 
-  // El administrador tiene acceso a todo
-  const tieneRol = (roles) => !roles?.length || usuario?.rol === 'administrador' || roles.includes(usuario?.rol)
+  // Cada rol entra solo a lo suyo (matriz de acceso, ERS 3.5); ningún rol tiene acceso total
+  const tieneRol = (roles) => !roles?.length || roles.includes(usuario?.rol)
 
   return (
     <ContextoSesion.Provider value={{ usuario, cargando, iniciarSesion, cerrarSesion, tieneRol }}>
