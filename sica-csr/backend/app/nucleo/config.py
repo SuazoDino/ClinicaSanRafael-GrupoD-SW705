@@ -29,6 +29,8 @@ class Configuracion(BaseSettings):
     twilio_auth_token: str = ""
     twilio_numero_sms: str = ""
     twilio_numero_whatsapp: str = ""
+    # URL pública con la que Twilio llama al webhook de respuestas (para validar su firma detrás de un proxy)
+    twilio_webhook_url: str = ""
     smtp_host: str = ""
     smtp_puerto: int = 587
     smtp_usuario: str = ""

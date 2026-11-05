@@ -78,6 +78,7 @@ Archivos: `m2_agenda/esquemas/*.py`, `m2_agenda/servicios/*.py`, `m2_agenda/ruta
 | HU10 | `PUT /citas/{id}/reprogramar` | recepcionista | `{fecha, hora}` | `CitaSalida` (vuelve a `registrada`) | 404 · 409 si no está `registrada/confirmada` o cupo ocupado |
 | HU10 | `PUT /citas/{id}/cancelar` | recepcionista | `{motivo}` (1–200) | `CitaSalida` (`cancelada`) | 404 · 422 sin motivo · 409 si no está `registrada/confirmada` |
 | HU07 | `PUT /citas/{id}/asistencia` | recepcionista | `{asistio: bool}` | `CitaSalida` (`confirmada` o `inasistente`) | 404 · 409 si no está `registrada` |
+| HU09 | `POST /recordatorios/respuesta` | — (webhook de Twilio, sin JWT; valida `X-Twilio-Signature`) | formulario `From`, `Body` (`1` confirma, `2` cancela) | TwiML con el mensaje de respuesta | 403 firma inválida |
 | HU08 | `GET /agenda-medico?fecha=&id_medico=` | medico, recepcionista | `fecha` por defecto hoy | `[CitaSalida]` sin canceladas, por hora | 403 si un médico pide otro `id_medico` |
 
 Reglas:

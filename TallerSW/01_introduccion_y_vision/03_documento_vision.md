@@ -12,7 +12,7 @@
 | **Personal de laboratorio** | Recibir órdenes médicas digitales, registrar los resultados analíticos y adjuntar reportes/imágenes digitales para notificación inmediata. | M3. Laboratorio e imágenes |
 | **Cajero / Facturación** | Consultar tarifarios automáticos según el convenio (particular/EPS/SOAT), cobrar copagos y emitir comprobantes correctos para minimizar glosas. | M4. Facturación y convenios |
 | **Gerencia médica** | Monitorear en tiempo real indicadores clave como la ocupación de consultorios, el tiempo de espera, la tasa de ausentismo e ingresos por convenio. | M5. Reportes gerenciales |
-| **Paciente** | Recibir recordatorios oportunos de la situación de su cita en diferentes medios (SMS/correo/WhatsApp), y de forma deseable, agendarse en línea (M6). | M2. Agenda y citas médicas / M6. Portal del paciente |
+| **Paciente** | Recibir recordatorios oportunos de su cita por WhatsApp y poder confirmarla o cancelarla respondiendo el mensaje; de forma deseable, agendarse en línea (M6). | M2. Agenda y citas médicas / M6. Portal del paciente |
 
 ## 2.3. Factibilidad
 * **Técnica:** El proyecto es altamente factible mediante la adopción de un stack de desarrollo web moderno de fuente abierta (Backend en Python/FastAPI, Frontend en React y PostgreSQL como BD relacional). La arquitectura web propuesta garantiza una latencia menor a 2 segundos en la apertura de historias clínicas y almacenamiento seguro con cifrado.

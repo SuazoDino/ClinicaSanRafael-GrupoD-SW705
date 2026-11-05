@@ -1,4 +1,8 @@
-"""Envío de recordatorios 24 h antes de la cita (HU09 · RF05). Lo llama recordatorio_programador cada N minutos."""
+"""Recordatorios 24 h antes de la cita (HU09 · RF05).
+
+- procesar_pendientes: envía los vencidos; lo llama recordatorio_programador cada N minutos.
+- procesar_respuesta: el paciente responde 1 (confirma) o 2 (cancela); lo llama el webhook de Twilio.
+"""
 import logging
 from datetime import datetime
 
@@ -19,7 +23,7 @@ def _mensaje(cita: Cita, medico) -> str:
     return (
         f"Clínica San Rafael: le recordamos su cita el {cita.fecha:%d/%m/%Y} a las {cita.hora:%H:%M} "
         f"con Dr(a). {medico.nombres} {medico.apellidos} ({medico.especialidad}). "
-        "Si no podrá asistir, comuníquese con la clínica."
+        "Responda 1 para confirmar o 2 para cancelar."
     )
 
 
@@ -58,3 +62,49 @@ def procesar_pendientes(db: Session, momento: datetime | None = None) -> int:
             recordatorio.estado = "enviado" if enviado else "fallido"
     db.commit()
     return len(pendientes)
+
+
+CONFIRMA = {"1", "si", "sí", "confirmo", "confirmar"}
+CANCELA = {"2", "no", "cancelo", "cancelar"}
+MOTIVO_CANCELACION_PACIENTE = "Cancelada por el paciente al responder el recordatorio."
+
+
+def procesar_respuesta(db: Session, telefono: str, texto: str) -> str:
+    """Registra la respuesta del paciente al último recordatorio enviado y devuelve el mensaje de contestación.
+
+    «Confirma» solo queda en el recordatorio: el estado «confirmada» de la cita significa que el paciente
+    llegó (HU07). «Cancela» cancela la cita y libera el cupo.
+    """
+    respuesta = texto.strip().lower().rstrip(".!")
+    if respuesta not in CONFIRMA | CANCELA:
+        return "Responda 1 para confirmar su cita o 2 para cancelarla."
+
+    ids_paciente = resumen_servicio.ids_por_telefono(db, telefono)
+    momento = ahora()
+    candidatos = db.execute(
+        select(Recordatorio, Cita)
+        .join(Cita, Cita.id_cita == Recordatorio.id_cita)
+        .where(
+            Cita.id_paciente.in_(ids_paciente),
+            Cita.estado.in_(MODIFICABLES),
+            Recordatorio.estado == "enviado",
+            Recordatorio.respuesta.is_(None),
+        )
+        .order_by(Cita.fecha, Cita.hora)
+    ).all() if ids_paciente else []
+    vigente = next(((r, c) for r, c in candidatos if datetime.combine(c.fecha, c.hora) > momento), None)
+    if vigente is None:
+        return "No encontramos una cita pendiente para este número. Comuníquese con la Clínica San Rafael."
+
+    recordatorio, cita = vigente
+    cuando = f"{cita.fecha:%d/%m/%Y} a las {cita.hora:%H:%M}"
+    if respuesta in CONFIRMA:
+        recordatorio.respuesta = "confirma"
+        mensaje = f"Gracias. Su cita del {cuando} quedó confirmada."
+    else:
+        recordatorio.respuesta = "cancela"
+        cita.estado, cita.motivo_cancelacion = "cancelada", MOTIVO_CANCELACION_PACIENTE
+        mensaje = f"Su cita del {cuando} fue cancelada. Para reprogramarla, comuníquese con la clínica."
+    db.commit()
+    log.info("Recordatorio %s: el paciente %s", recordatorio.id_recordatorio, recordatorio.respuesta)
+    return mensaje

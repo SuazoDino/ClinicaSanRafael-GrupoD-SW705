@@ -1,0 +1,162 @@
+@startuml modelo_er
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam linetype ortho
+skinparam ArrowColor #555555
+skinparam ClassBorderColor #7A1F1F
+hide circle
+hide methods
+
+' Seguridad y auditoría
+entity rol #EEF0F3 {
+  * id_rol : smallint <<PK>>
+  --
+  * nombre : varchar(30)
+}
+entity usuario #EEF0F3 {
+  * id_usuario : int <<PK>>
+  --
+  * username : varchar(40)
+  * password_hash : varchar(255)
+  * id_rol : smallint <<FK>>
+  * activo : bool
+}
+entity bitacora #EEF0F3 {
+  * id_bitacora : bigint <<PK>>
+  --
+  * id_usuario : int <<FK>>
+  * accion : varchar(30)
+  * entidad : varchar(40)
+  id_entidad : bigint
+  * fecha_hora : timestamp
+  ip_origen : varchar(45)
+  detalle : text
+}
+
+' M2 · Agenda
+entity especialidad #FDE7C8 {
+  * id_especialidad : int <<PK>>
+  --
+  * nombre : varchar(60)
+}
+entity medico #FDE7C8 {
+  * id_medico : int <<PK>>
+  --
+  * nombres : varchar(80)
+  * apellidos : varchar(80)
+  * colegiatura : varchar(12)
+  * id_especialidad : int <<FK>>
+  id_usuario : int <<FK>>
+}
+entity horario_medico #FDE7C8 {
+  * id_horario : int <<PK>>
+  --
+  * id_medico : int <<FK>>
+  * dia_semana : smallint
+  * hora_inicio : time
+  * hora_fin : time
+  * duracion_cupo_min : smallint
+}
+entity cita #FDE7C8 {
+  * id_cita : int <<PK>>
+  --
+  * id_paciente : int <<FK>>
+  * id_medico : int <<FK>>
+  * fecha : date
+  * hora : time
+  * estado : varchar(15)
+  motivo_cancelacion : varchar(200)
+}
+entity recordatorio #FDE7C8 {
+  * id_recordatorio : int <<PK>>
+  --
+  * id_cita : int <<FK>>
+  * canal : varchar(10)
+  * fecha_programada : timestamp
+  * estado : varchar(10)
+  respuesta : varchar(10)
+}
+
+' M1 · Historia clínica
+entity paciente #FBE3E3 {
+  * id_paciente : int <<PK>>
+  --
+  * dni : char(8)
+  * nombres : varchar(80)
+  * apellidos : varchar(80)
+  telefono : varchar(15)
+  email : varchar(100)
+  * fecha_nacimiento : date
+}
+entity historia_clinica #FBE3E3 {
+  * id_historia : int <<PK>>
+  --
+  * numero_hce : varchar(12)
+  * id_paciente : int <<FK>>
+  * fecha_apertura : date
+  antecedentes : text
+  alergias : text
+}
+entity triaje #FBE3E3 {
+  * id_triaje : int <<PK>>
+  --
+  * id_cita : int <<FK>>
+  * registrado_por : int <<FK>>
+  * fecha_registro : timestamp
+  * presion_sistolica : smallint
+  * presion_diastolica : smallint
+  * frecuencia_cardiaca : smallint
+  * temperatura : numeric(4,1)
+  * peso_kg : numeric(5,2)
+  * talla_cm : numeric(5,1)
+}
+entity consulta_medica #FBE3E3 {
+  * id_consulta : int <<PK>>
+  --
+  * id_cita : int <<FK>>
+  * id_historia : int <<FK>>
+  * fecha_consulta : timestamp
+  * motivo : varchar(300)
+  evolucion : text
+  * anulada : bool
+  motivo_anulacion : varchar(300)
+  anulada_por : int <<FK>>
+  fecha_anulacion : timestamp
+}
+entity cie10 #FBE3E3 {
+  * codigo : varchar(8) <<PK>>
+  --
+  * descripcion : varchar(200)
+}
+entity diagnostico_consulta #FBE3E3 {
+  * id_consulta : int <<PK, FK>>
+  * codigo_cie10 : varchar(8) <<PK, FK>>
+  --
+  * es_principal : bool
+}
+entity receta #FBE3E3 {
+  * id_receta : int <<PK>>
+  --
+  * id_consulta : int <<FK>>
+  * indicaciones : text
+  * fecha_emision : date
+}
+
+rol ||--o{ usuario
+usuario ||--o{ bitacora
+especialidad ||--o{ medico
+usuario |o--o| medico
+medico ||--o{ horario_medico
+medico ||--o{ cita
+paciente ||--o{ cita
+paciente ||--|| historia_clinica
+cita ||--o{ recordatorio
+cita ||--o| triaje
+usuario ||--o{ triaje
+cita ||--o{ consulta_medica
+historia_clinica ||--o{ consulta_medica
+usuario |o--o{ consulta_medica
+consulta_medica ||--|{ diagnostico_consulta
+cie10 ||--o{ diagnostico_consulta
+consulta_medica ||--o| receta
+@enduml

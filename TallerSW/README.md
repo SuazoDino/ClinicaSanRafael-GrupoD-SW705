@@ -25,6 +25,26 @@
 * **[04. Prototipo, Planificación y Sustentación](04_prototipo_y_planificacion/)**
   * [`01_prototipo_ux_ui.md`](04_prototipo_y_planificacion/01_prototipo_ux_ui.md) - Wireframes y flujo de navegación UX/UI.
   * [`02_plan_release.md`](04_prototipo_y_planificacion/02_plan_release.md) - Plan de release, objetivo y Sprint Backlog 1, tareas técnicas, cronograma y Definition of Done.
+  * [`03_matriz_trazabilidad.md`](04_prototipo_y_planificacion/03_matriz_trazabilidad.md) - Matriz de trazabilidad: de la necesidad del negocio a la tarea del Sprint 1.
 
 * **[assets/](assets/)**
   * Carpeta destinada para almacenar los diagramas, imágenes y recursos visuales del proyecto.
+
+---
+
+## Declaración de uso de asistentes de IA
+
+El equipo usó **Claude Code (Anthropic)** como asistente de programación y redacción. La IA propuso borradores; las decisiones de alcance y diseño las tomó el equipo, que responde por todo el contenido del entregable.
+
+| Artefacto | Qué generó la IA | Cómo se validó | Responde |
+| :--- | :--- | :--- | :--- |
+| Backend del Sprint 1 (M1 y M2) | Esquemas, servicios y rutas de los endpoints definidos en `sica-csr/CONTRATO_API_SPRINT1.md` | 38 pruebas automáticas (pytest) y prueba manual de cada pantalla con datos ficticios | Suazo (BD/API) |
+| Conexión del frontend a la API | Reemplazo de la BD simulada por llamadas HTTP en `api.js` | Recorrido de las pantallas con cada rol | Fernandez (UI) |
+| Datos de ejemplo | Agenda de ejemplo en `db/cargar_datos_prueba.py` | Revisión de que todos los datos son ficticios | Zamudio (Datos) |
+| Diagramas UML, E-R y de arquitectura | Código PlantUML de los diagramas | Comparación con el esquema real de la BD (`db/sql`) y con el ERS | Equipo |
+| Revisión de la documentación | Detección de contradicciones entre documentos y propuestas de corrección | Lectura y aprobación de cada cambio por el equipo | Equipo |
+| Capturas del prototipo | Capturas automáticas de las pantallas | Revisión visual del equipo | Equipo |
+
+**Decisiones tomadas por el equipo, no por la IA:** limitar el recordatorio a WhatsApp, implementar la respuesta del paciente (HU09), dejar pendiente el despliegue en la nube (T05) y mantener la gestión de personal como prototipo por aprobar.
+
+**Datos:** en ninguna etapa se usaron datos reales de pacientes; todos los datos de prueba son ficticios.

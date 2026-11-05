@@ -16,7 +16,7 @@ La Clínica San Rafael opera con procesos manuales y fragmentados que provocan u
 1. **Implementar el 100%** de los requerimientos del módulo de **Historia Clínica Electrónica (M1)** al finalizar el Sprint 1 (Semana 11) para centralizar antecedentes, consultas, diagnósticos (CIE-10), indicaciones y recetas.
 2. Lograr un **tiempo de apertura de la historia clínica menor a 2 segundos** en el módulo M1 para una base de hasta 8 000 pacientes al cierre del Sprint 1 (Semana 11), garantizando trazabilidad y control de accesos por rol.
 3. Desarrollar la **vista consolidada de disponibilidad** por médico y especialidad del módulo de **Agenda y Citas Médicas (M2)** al cierre del Sprint 1 (Semana 11), reduciendo el tiempo de agendamiento telefónico de 20 minutos a menos de 3 minutos por paciente.
-4. Integrar el **envío automático de confirmaciones y recordatorios** (SMS, correo y WhatsApp) en el módulo M2 al finalizar el Sprint 1 (Semana 11), orientado a reducir la tasa de inasistencia (*no-show*) del 18% actual al 8%.
+4. Integrar el **envío automático de recordatorios por WhatsApp**, con respuesta del paciente para confirmar o cancelar, en el módulo M2 al finalizar el Sprint 1 (Semana 11), orientado a reducir la tasa de inasistencia (*no-show*) del 18% actual al 8%.
 
 ## 1.4. Alcance resumido
 El proyecto comprende el diseño, desarrollo, pruebas e implementación del Sistema de Información Clínico-Administrativo. Se desarrollará de forma incremental en dos Sprints:

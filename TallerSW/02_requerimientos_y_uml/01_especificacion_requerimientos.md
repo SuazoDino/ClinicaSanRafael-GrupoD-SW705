@@ -7,12 +7,13 @@
 | **RF02** | Registrar triaje y funciones vitales (PA, FC, Temp, Peso, Talla). | M1 | Should |
 | **RF03** | El sistema debe permitir al médico consultar y desplegar el expediente clínico unificado (antecedentes, diagnósticos y atenciones previas) del paciente. | M1 | Must |
 | **RF04** | Registrar atenciones médicas con codificación diagnóstica CIE-10. | M1 | Must |
-| **RF05** | Enviar confirmaciones y recordatorios automáticos de cita por SMS/WhatsApp y correo electrónico. | M2 | Must |
+| **RF05** | Enviar recordatorios automáticos de cita por WhatsApp 24 h antes y registrar la respuesta del paciente (confirma o cancela). | M2 | Must |
 | **RF06** | Anular entradas de la HCE indicando motivo, sin eliminarlas físicamente. | M1 | Must |
 | **RF07** | Mostrar los cupos libres consolidados por especialidad, médico y fecha. | M2 | Must |
 | **RF08** | Registrar citas impidiendo asignar un cupo ya ocupado. | M2 | Must |
 | **RF09** | Visualizar disponibilidad médica consolidada por especialista y fecha. | M2 | Must |
 | **RF10** | Reprogramar o cancelar citas, liberando el cupo de inmediato. | M2 | Must |
+| **RF11** | Registrar la asistencia o inasistencia del paciente a su cita, para medir el *no-show*. | M2 | Should |
 
 ## 3.2. Requerimientos no funcionales
 | ID | Descripción | Atributo | Verificación |
@@ -39,13 +40,13 @@ Los identificadores y puntos de esta sección son los mismos del product backlog
   * *Criterio:* Dada una cita triada, cuando busco «diabetes», entonces el sistema sugiere códigos CIE-10 (p. ej., E11), y al guardar queda la consulta con motivo, evolución, diagnóstico principal y receta, y la cita pasa a «atendida».
 * **HU06 (2 pts) Como médico, quiero imprimir la receta, para entregársela al paciente.** *(RF04)*
   * *Criterio:* Dada una consulta con receta, cuando pulso «Imprimir», entonces se genera un formato imprimible con los datos del paciente, médico, diagnóstico e indicaciones.
-* **HU07 (2 pts) Como recepcionista, quiero marcar la asistencia o inasistencia del paciente, para medir el no-show.** *(RF10)*
+* **HU07 (2 pts) Como recepcionista, quiero marcar la asistencia o inasistencia del paciente, para medir el no-show.** *(RF11)*
   * *Criterio:* Dada una cita del día, cuando marco «no asistió», entonces la cita pasa a «inasistente»; si asistió, queda «confirmada» y disponible para triaje.
 * **HU08 (2 pts) Como médico, quiero ver mi agenda del día, para saber a qué pacientes atiendo y en qué estado están.** *(RF09)*
   * *Criterio 1:* Dado que inicio sesión como médico, cuando abro «Mi agenda», entonces veo solo mis citas del día ordenadas por hora con su estado.
   * *Criterio 2:* Dado que inicio sesión como recepcionista, cuando abro «Agenda por médico» y elijo un médico, entonces veo sus citas del día con su estado, en solo lectura y sin acceso a la HCE.
 * **HU09 (5 pts) Como paciente, quiero recibir un recordatorio 24 h antes de mi cita, para no faltar o cancelarla a tiempo.** *(RF05)*
-  * *Criterio:* Dada una cita para mañana, cuando faltan 24 h, entonces recibo un mensaje con fecha, hora y médico, y la opción de confirmar o cancelar; mi respuesta actualiza el estado de la cita.
+  * *Criterio:* Dada una cita para mañana, cuando faltan 24 h, entonces recibo un mensaje con fecha, hora y médico, y puedo responder «1» para confirmar o «2» para cancelar; si cancelo, la cita pasa a «cancelada» y el cupo se libera, y si confirmo, mi confirmación queda registrada en el recordatorio.
 * **HU10 (3 pts) Como recepcionista, quiero reprogramar o cancelar una cita, para liberar el cupo y reasignarlo.** *(RF10)*
   * *Criterio:* Dada una cita registrada, cuando la cancelo indicando el motivo, entonces el cupo vuelve a mostrarse como disponible.
 * **HU11 (5 pts) Como enfermera, quiero registrar los signos vitales en el triaje, para que el médico los vea sin volver a tomarlos.** *(RF02)*

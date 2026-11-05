@@ -7,7 +7,7 @@
 ## 8.2. Sprint 1 (Semanas 9–11)
 
 ### 8.2.1. Objetivo del sprint
-Entregar en producción (nube) el flujo completo de **atención ambulatoria**: recepción registra al paciente y agenda la cita sin cupos duplicados, el paciente recibe su recordatorio, enfermería registra el triaje y el médico abre la HCE unificada en menos de 2 s, registra el diagnóstico CIE-10 con receta y anula entradas con motivo. Todo con acceso por rol y bitácora.
+Entregar funcionando (contenedores Docker) el flujo completo de **atención ambulatoria**: recepción registra al paciente y agenda la cita sin cupos duplicados, el paciente recibe su recordatorio, enfermería registra el triaje y el médico abre la HCE unificada en menos de 2 s, registra el diagnóstico CIE-10 con receta y anula entradas con motivo. Todo con acceso por rol y bitácora. El despliegue en la nube (T05) queda pendiente: requiere contratar el hosting.
 
 ### 8.2.2. Sprint Backlog 1
 | Historia | Descripción | Módulo | Responsable | Puntos | Estado |
@@ -31,11 +31,11 @@ Son prerrequisitos de las historias; no suman puntos.
 
 | ID | Tarea | Responsable |
 | :---: | :--- | :--- |
-| **T01** | Estructura del repositorio (`backend`, `frontend`, `db`, `tests`), `docker-compose` con PostgreSQL 16 y proyectos base FastAPI y React + Vite. | Fernandez |
+| **T01** | Estructura del repositorio (`backend`, `frontend`, `db`, `pruebas`), `docker-compose` con PostgreSQL 16 y proyectos base FastAPI y React + Vite. | Fernandez |
 | **T02** | Migración inicial con Alembic a partir del DDL (6.3) y semillas ficticias: roles, usuarios de prueba, especialidades, médicos, horarios, catálogo CIE-10 y 8 000 pacientes para la prueba de carga. | Suazo |
 | **T03** | Inicio de sesión con JWT (access + refresh), hash argon2, middleware RBAC por rol y registro automático en bitácora (RFN01). | Suazo |
 | **T04** | Integración continua en GitHub Actions: lint, pytest y build del frontend en cada pull request. | Zamudio |
-| **T05** | Despliegue en la nube (PaaS + PostgreSQL gestionado) con HTTPS y health check (RFN03). | Zamudio |
+| **T05** | Despliegue en la nube (PaaS + PostgreSQL gestionado) con HTTPS y health check (RFN03). *Pendiente: requiere contratar el hosting.* | Zamudio |
 | **T06** | Prueba de carga con Locust sobre la apertura de HCE (<2 s p95 con 8 000 pacientes, RFN02). | Zamudio |
 
 ### 8.2.4. Cronograma del sprint
@@ -43,7 +43,7 @@ Son prerrequisitos de las historias; no suman puntos.
 | :---: | :--- |
 | **9** | T01–T04 listos. Registro de pacientes (HU03) y agenda con cupos libres y bloqueo de duplicados (HU01, HU02). |
 | **10** | Ciclo de la cita: reprogramar/cancelar (HU10), agenda del médico (HU08), asistencia (HU07) y triaje (HU11). HCE unificada (HU04). |
-| **11** | Atención médica: diagnóstico CIE-10 y receta (HU05), anulación (HU12), impresión (HU06) y recordatorios (HU09). Prueba de carga (T06), despliegue (T05), Sprint Review y Retrospectiva. |
+| **11** | Atención médica: diagnóstico CIE-10 y receta (HU05), anulación (HU12), impresión (HU06) y recordatorios (HU09). Prueba de carga (T06), Sprint Review y Retrospectiva. Despliegue en la nube (T05) pendiente. |
 
 ## 8.3. Definición de Hecho (Definition of Done)
 1. Código integrado a la rama principal mediante pull request revisado y aprobado.

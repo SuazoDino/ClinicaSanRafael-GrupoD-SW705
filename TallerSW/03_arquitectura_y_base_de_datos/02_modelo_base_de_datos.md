@@ -3,9 +3,9 @@
 ## 6.1. Modelo entidad-relación (ER)
 El modelo del Sprint 1 relaciona las entidades de seguridad (roles, usuarios y bitácora de auditoría), pacientes, médicos, especialidades, horarios de atención, citas, historias clínicas, consultas médicas, triajes, diagnósticos CIE-10, recetas y recordatorios.
 
-![Modelo entidad-relación](../assets/Modelo-E-R/1.png)
+![Modelo entidad-relación](../assets/Modelo-E-R/modelo_er.png)
 
-> **Nota:** la tabla `horario_medico` se agregó para poder calcular los cupos libres (RF07, RF09); falta incorporarla en la imagen del modelo ER y del diagrama de clases (relación `Medico 1 — * HorarioMedico`).
+La tabla `horario_medico` guarda el rango de atención semanal de cada médico (relación `medico 1 — * horario_medico`); a partir de ella se calculan los cupos libres (RF07, RF09).
 
 ## 6.2. Diccionario de datos (tablas principales)
 ### Tabla: `paciente` (M1)
@@ -229,4 +229,7 @@ FOR EACH ROW EXECUTE FUNCTION fn_bloquear_borrado();
 -- La bitácora es inmutable: ni UPDATE ni DELETE (RFN01)
 CREATE TRIGGER trg_bitacora_inmutable BEFORE UPDATE OR DELETE ON bitacora
 FOR EACH ROW EXECUTE FUNCTION fn_bloquear_borrado();
+
+-- ===== Datos de referencia =====
+INSERT INTO rol (nombre) VALUES ('administrador'), ('recepcionista'), ('enfermera'), ('medico');
 ```

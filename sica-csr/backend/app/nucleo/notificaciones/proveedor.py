@@ -3,6 +3,9 @@
 Si no hay credenciales en el .env, el mensaje se imprime en consola: así se puede
 desarrollar y probar sin gastar en Twilio.
 """
+import base64
+import hashlib
+import hmac
 import logging
 import smtplib
 from email.message import EmailMessage
@@ -57,3 +60,11 @@ def _enviar_twilio(canal: str, destino: str, texto: str) -> bool:
         timeout=15,
     )
     return respuesta.is_success
+
+
+def firma_twilio_valida(url: str, parametros: dict[str, str], firma: str | None) -> bool:
+    """Comprueba la cabecera X-Twilio-Signature de un webhook (HMAC-SHA1 de la URL + parámetros ordenados)."""
+    token = obtener_configuracion().twilio_auth_token
+    datos = url + "".join(clave + parametros[clave] for clave in sorted(parametros))
+    esperada = base64.b64encode(hmac.new(token.encode(), datos.encode(), hashlib.sha1).digest()).decode()
+    return hmac.compare_digest(esperada, firma or "")

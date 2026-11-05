@@ -5,15 +5,15 @@
 * **Estilo elegido:** Arquitectura en capas (presentación, negocio y datos) con una API REST monolítica modular, consumida por una SPA en React.
 * **Justificación:** Prioriza simplicidad de construcción, prueba y despliegue para cumplir el timebox de la semana 11. Una sola base PostgreSQL garantiza transacciones ACID para la HCE y facilita apertura en <2s con 8 000 pacientes.
 
-![SAD](../assets/arquitectura/SAD.png)
+![Arquitectura en capas](../assets/arquitectura/capas_sad.png)
 
 ## 5.2. Vistas 4+1 (simplificadas)
-* **Lógica:** Tres capas (SPA React en presentación, API FastAPI en negocio con módulos M1 y M2, servicios transversales JWT/RBAC/bitácora, y PostgreSQL en datos).
-* **Procesos:** Flujos seguros mediante tokens JWT, validación de roles, verificación de cupos con transacciones atómicas e índices únicos parciales, tareas programadas para recordatorios y bitácora inmutable.
-* **Desarrollo:** Repositorio en GitHub con carpetas `backend`, `frontend`, `db` y `tests`. Módulos independientes comunicados por servicios/endpoints.
-* **Física:** Navegadores en San Borja conectados por HTTPS a servidor de aplicaciones en la nube (Docker) y PostgreSQL gestionado. Despliegue con GitHub Actions.
+* **Lógica:** Tres capas (SPA React en presentación, API FastAPI en negocio con módulos M1 y M2 y un núcleo transversal de autenticación JWT + RBAC, bitácora inmutable, anulación lógica y notificaciones, y PostgreSQL en datos). El portal del paciente y M3–M5 se agregan en el Sprint 2.
+* **Procesos:** Flujos seguros mediante tokens JWT, validación de roles, verificación de cupos con transacciones atómicas e índices únicos parciales, tareas programadas para recordatorios (y un webhook que recibe la respuesta del paciente) y bitácora inmutable.
+* **Desarrollo:** Repositorio en GitHub con carpetas `backend`, `frontend`, `db` y `pruebas`. Módulos independientes comunicados por servicios/endpoints.
+* **Física:** Navegadores de la sede San Borja conectados por HTTPS (443) a un servidor de aplicación en la nube con proxy inverso TLS, frontend estático, API FastAPI en Docker y planificador de recordatorios; PostgreSQL en un servidor de BD con respaldo diario; Twilio envía los recordatorios por WhatsApp y devuelve la respuesta del paciente por webhook; despliegue con GitHub Actions. Hoy el sistema corre con Docker Compose y el despliegue en la nube (T05) está pendiente.
 
-![SAD](../assets/arquitectura/Vistas4+1(fisica).png)
+![Vista física](../assets/arquitectura/vista_fisica.png)
 
 * **Escenarios:** Validación de DNI existente, rechazo de cupos ocupados (409), apertura de HCE unificada en <2s, y anulación lógica de entradas clínicas.
 
@@ -35,7 +35,7 @@
 * **Base de datos:** PostgreSQL 16.
 * **Frontend:** React + Vite (SPA).
 * **Seguridad:** JWT, RBAC, hash argon2/bcrypt, HTTPS/TLS.
-* **Notificaciones:** Twilio (SMS/WhatsApp) en cuenta de prueba (*trial/sandbox*) durante desarrollo y demostración, y correo por SMTP como canal sin costo. En producción el costo por mensaje de Twilio lo asume la clínica y se justifica por la reducción del *no-show* (18% → 8%).
-* **Tareas programadas:** APScheduler dentro de la API para generar y enviar los recordatorios 24 h antes de la cita.
+* **Notificaciones:** Twilio WhatsApp en cuenta de prueba (*sandbox*) durante desarrollo y demostración. El modelo de datos admite también SMS y correo (`recordatorio.canal`) para habilitarlos más adelante sin cambiar la base. En producción el costo por mensaje de Twilio lo asume la clínica y se justifica por la reducción del *no-show* (18% → 8%).
+* **Tareas programadas:** APScheduler dentro de la API para generar y enviar los recordatorios 24 h antes de la cita. La respuesta del paciente («1» confirma, «2» cancela) llega por un webhook de Twilio con firma verificada.
 * **Hosting / Despliegue:** Docker en PaaS con capa gratuita o de costo acotado (p. ej., Render o Railway) y PostgreSQL gestionado.
 * **CI / Pruebas:** GitHub Actions, pytest y Locust.

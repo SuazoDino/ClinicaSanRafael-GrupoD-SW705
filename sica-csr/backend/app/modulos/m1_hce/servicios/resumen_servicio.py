@@ -4,7 +4,7 @@ Están aparte para que M2 no dependa de los servicios de M1 que a su vez usan M2
 """
 from collections.abc import Iterable
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session, selectinload
 
 from app.modulos.m1_hce.esquemas.paciente import PacienteResumen
@@ -36,3 +36,12 @@ def triajes_por_cita(db: Session, ids_cita: Iterable[int]) -> dict[int, TriajeSa
         return {}
     triajes = db.scalars(select(Triaje).where(Triaje.id_cita.in_(ids_cita)))
     return {t.id_cita: TriajeSalida.model_validate(t) for t in triajes}
+
+
+def ids_por_telefono(db: Session, telefono: str) -> list[int]:
+    """Pacientes cuyo teléfono termina en los mismos 9 dígitos (ignora +51, espacios y el prefijo whatsapp:)."""
+    digitos = "".join(c for c in telefono if c.isdigit())[-9:]
+    if len(digitos) < 9:
+        return []
+    solo_digitos = func.right(func.regexp_replace(Paciente.telefono, r"\D", "", "g"), 9)
+    return list(db.scalars(select(Paciente.id_paciente).where(solo_digitos == digitos)))
