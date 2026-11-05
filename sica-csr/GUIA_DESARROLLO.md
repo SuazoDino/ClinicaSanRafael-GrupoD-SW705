@@ -3,6 +3,8 @@
 Cómo está organizado el código y qué pasos seguir para agregar algo nuevo. El ejemplo completo
 de referencia es **Registro de pacientes (HU03)**: copia su patrón.
 
+Qué endpoints faltan del Sprint 1 y qué debe responder cada uno: **[CONTRATO_API_SPRINT1.md](CONTRATO_API_SPRINT1.md)**.
+
 ## 1. ¿Es MVC?
 
 No exactamente. El SAD define una **arquitectura en capas** (presentación → negocio → datos).
