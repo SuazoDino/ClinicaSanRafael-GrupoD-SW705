@@ -76,3 +76,62 @@ def crear_usuario(db):
         return usuario, {"Authorization": f"Bearer {token}"}
 
     return _crear
+
+
+@pytest.fixture
+def agenda(db, cliente, crear_usuario):
+    """Médico con horario todos los días 08:00–13:00 (cupos de 20 min), un paciente, un CIE-10 y una
+    recepcionista. `fecha` es mañana, así ningún cupo está «pasado»."""
+    from datetime import timedelta
+
+    from app.nucleo.tiempo import hoy
+
+    medico_usuario, cabeceras_medico = crear_usuario("medico", username="dr_agenda")
+    id_esp = db.scalar(text("INSERT INTO especialidad (nombre) VALUES ('Especialidad prueba') RETURNING id_especialidad"))
+    id_medico = db.scalar(
+        text(
+            "INSERT INTO medico (nombres, apellidos, colegiatura, id_especialidad, id_usuario) "
+            "VALUES ('Rosa', 'Prueba', 'CMP-AG1', :e, :u) RETURNING id_medico"
+        ),
+        {"e": id_esp, "u": medico_usuario.id_usuario},
+    )
+    db.execute(
+        text(
+            "INSERT INTO horario_medico (id_medico, dia_semana, hora_inicio, hora_fin) "
+            "SELECT :m, d, '08:00', '13:00' FROM generate_series(1, 7) AS d"
+        ),
+        {"m": id_medico},
+    )
+    db.execute(text("INSERT INTO cie10 (codigo, descripcion) VALUES ('I20.9', 'Angina de pecho, no especificada'), "
+                    "('E11', 'Diabetes mellitus tipo 2') ON CONFLICT DO NOTHING"))
+    _, cabeceras_recepcion = crear_usuario("recepcionista")
+    paciente = cliente.post(
+        "/api/pacientes",
+        json={"dni": "55556666", "nombres": "Luis", "apellidos": "Agenda Prueba", "fecha_nacimiento": "1980-03-01",
+              "telefono": "+51911111111"},
+        headers=cabeceras_recepcion,
+    ).json()
+    return {
+        "id_medico": id_medico,
+        "id_paciente": paciente["id_paciente"],
+        "fecha": (hoy() + timedelta(days=1)).isoformat(),
+        "recepcion": cabeceras_recepcion,
+        "medico": cabeceras_medico,
+    }
+
+
+@pytest.fixture
+def agendar(cliente, agenda):
+    """agendar('09:00') → cita registrada (JSON) en la fecha de `agenda`."""
+
+    def _agendar(hora: str, fecha: str | None = None):
+        respuesta = cliente.post(
+            "/api/citas",
+            json={"id_paciente": agenda["id_paciente"], "id_medico": agenda["id_medico"],
+                  "fecha": fecha or agenda["fecha"], "hora": hora},
+            headers=agenda["recepcion"],
+        )
+        assert respuesta.status_code == 201, respuesta.text
+        return respuesta.json()
+
+    return _agendar

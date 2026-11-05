@@ -1,4 +1,10 @@
-"""Esquemas de cupos libres/ocupados por médico y fecha (HU01).
+"""Esquemas de cupos libres/ocupados por médico y fecha (HU01)."""
+from datetime import time
+from typing import Literal
 
-Pendiente: implementar siguiendo el ejemplo de pacientes (ver GUIA_DESARROLLO.md).
-"""
+from pydantic import BaseModel
+
+
+class CupoSalida(BaseModel):
+    hora: time
+    estado: Literal["libre", "ocupado", "pasado"]

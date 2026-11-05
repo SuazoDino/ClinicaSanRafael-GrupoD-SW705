@@ -14,8 +14,9 @@ Cómo implementar cada endpoint: `GUIA_DESARROLLO.md` (ejemplo completo: `rutas/
 | Modelos (`modelos/`) | ✅ Completos y alineados con `db/sql/sica_esquema_datos.sql`. No hace falta tocarlos. |
 | Auth, RBAC, bitácora (`nucleo/`) | ✅ Listos (`requiere_roles`, `AuditorActual`, `Sesion`). |
 | HU03 Pacientes | ✅ Esquema, servicio y rutas hechos. Es el ejemplo a copiar. |
-| Resto de esquemas / servicios / rutas | ⬜ Archivos creados y registrados, vacíos. **Esto es lo que falta.** |
-| Frontend | ✅ Todas las pantallas hechas sobre la BD simulada. |
+| Resto de esquemas / servicios / rutas (M1 y M2) | ✅ Implementados según este contrato, con pruebas en `pruebas/`. |
+| Frontend | ✅ M1 y M2 conectados a la API real. Solo `administracion` sigue en la BD simulada (fuera del Sprint 1). |
+| Datos de ejemplo | ✅ `db/cargar_datos_prueba.py` carga la agenda de ejemplo del prototipo la primera vez (tabla `cita` vacía). |
 
 Orden sugerido (cada paso desbloquea el siguiente): **M2 disponibilidad → citas → agenda médico → M1 triaje → CIE-10 → consultas → historias → recordatorios.**
 

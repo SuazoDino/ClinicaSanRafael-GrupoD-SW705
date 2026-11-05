@@ -1,6 +1,4 @@
 """RFN01 · Acceso por rol con JWT (matriz del ERS 3.5)."""
-import pytest
-
 from test_paciente_dni_unico import PACIENTE
 
 
@@ -19,7 +17,6 @@ def test_administrador_gestiona_la_filiacion(cliente, crear_usuario):
     assert cliente.post("/api/pacientes", json=PACIENTE, headers=cabeceras).status_code == 201
 
 
-@pytest.mark.skip(reason="HU04 pendiente: activar cuando exista GET /api/historias/{id}")
 def test_administrador_no_abre_la_hce(cliente, crear_usuario):
     """ERS 3.5: el administrador no tiene acceso total; la HCE es solo del médico."""
     _, cabeceras = crear_usuario("administrador")
@@ -35,3 +32,16 @@ def test_login_correcto_e_incorrecto(cliente, crear_usuario):
 
     mal = cliente.post("/api/auth/login", data={"username": "dr_prueba", "password": "otra"})
     assert mal.status_code == 401
+
+
+def test_medico_solo_ve_su_agenda(cliente, agenda):
+    propia = cliente.get("/api/agenda-medico", params={"fecha": agenda["fecha"]}, headers=agenda["medico"])
+    assert propia.status_code == 200
+    ajena = cliente.get("/api/agenda-medico", params={"id_medico": agenda["id_medico"] + 999}, headers=agenda["medico"])
+    assert ajena.status_code == 403
+
+
+def test_recepcion_indica_el_medico_de_la_agenda(cliente, agenda):
+    assert cliente.get("/api/agenda-medico", headers=agenda["recepcion"]).status_code == 422
+    con_medico = cliente.get("/api/agenda-medico", params={"id_medico": agenda["id_medico"]}, headers=agenda["recepcion"])
+    assert con_medico.status_code == 200

@@ -1,12 +1,8 @@
-// PROTOTIPO · Base de datos simulada en el navegador para las pantallas cuyo endpoint aún no existe.
+// PROTOTIPO · Base de datos simulada en el navegador. Desde que M1 y M2 usan la API real, solo la usa
+// modulos/administracion (Personal, usuarios, especialidades), que está pendiente de aprobación (ERS 3.5).
 //
-// Usa las mismas tablas, columnas y reglas que la BD real (TallerSW/03_arquitectura_y_base_de_datos/02_modelo_base_de_datos.md):
-// estados de cita, cupo único por médico/fecha/hora, motivo obligatorio al cancelar o anular, rangos de signos
-// vitales, un diagnóstico principal por consulta y nada se borra. Médicos, especialidades, horarios, CIE-10 y los
-// pacientes 1–10 son copia de las semillas (T02).
-//
-// Cómo se retira: cuando un endpoint quede listo, en api.js del módulo se cambia la función simulada por la
-// llamada http (misma firma y misma forma de respuesta) y las pantallas no se tocan. Al final se borra esta carpeta.
+// Usa las mismas tablas, columnas y reglas que la BD real (TallerSW/03_arquitectura_y_base_de_datos/02_modelo_base_de_datos.md).
+// Cuando administración tenga backend, su api.js pasa a llamadas http y se borra esta carpeta.
 //
 // Los cambios se guardan en localStorage y se reinician cada día (o con reiniciarPrototipo()).
 import { diaSemana, hoyISO, sumarDias } from '../utilidades/formato.js'

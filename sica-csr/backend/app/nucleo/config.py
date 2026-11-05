@@ -19,6 +19,9 @@ class Configuracion(BaseSettings):
 
     cors_origenes: str = "http://localhost:5173"
 
+    # Hora local de la clínica: cupos «pasados», fechas de registro y recordatorios
+    zona_horaria: str = "America/Lima"
+
     recordatorios_activos: bool = False
     recordatorios_intervalo_min: int = 10
 

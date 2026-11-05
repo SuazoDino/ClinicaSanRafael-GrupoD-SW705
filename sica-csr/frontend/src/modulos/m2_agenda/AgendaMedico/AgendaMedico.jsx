@@ -1,6 +1,5 @@
 // HU08 · Agenda del día por médico: a qué pacientes atiende y en qué estado están.
 // El médico ve la suya (id_medico de la sesión) y abre la HCE; recepción elige el médico y solo consulta (ERS 3.5).
-// PROTOTIPO: las citas vienen de la BD simulada (ver api.js).
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useSesion } from '../../../compartido/autenticacion/ContextoSesion.jsx'

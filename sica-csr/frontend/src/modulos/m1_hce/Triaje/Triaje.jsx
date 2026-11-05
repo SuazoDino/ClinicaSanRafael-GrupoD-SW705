@@ -1,6 +1,5 @@
 // HU11 · Registrar triaje y signos vitales; la cita pasa de «confirmada» a «triada».
 // Solo la enfermera registra; el administrador consulta en solo lectura (ERS 3.5).
-// PROTOTIPO: citas y triajes vienen de la BD simulada (ver api.js).
 import { useEffect, useState } from 'react'
 import { mensajeError } from '../../../compartido/api/clienteHttp.js'
 import { useSesion } from '../../../compartido/autenticacion/ContextoSesion.jsx'

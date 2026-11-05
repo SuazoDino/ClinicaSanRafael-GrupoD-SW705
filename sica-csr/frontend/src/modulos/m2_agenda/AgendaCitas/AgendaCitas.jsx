@@ -1,5 +1,4 @@
 // HU01 cupos libres · HU02 sin cupos duplicados · HU07 asistencia · HU09 recordatorio · HU10 reprogramar o cancelar.
-// PROTOTIPO: citas y cupos vienen de la BD simulada (ver api.js); los pacientes, de la API real.
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { mensajeError } from '../../../compartido/api/clienteHttp.js'

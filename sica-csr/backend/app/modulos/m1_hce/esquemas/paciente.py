@@ -40,3 +40,15 @@ class PacienteSalida(BaseModel):
     fecha_nacimiento: date
     id_historia: int
     numero_hce: str
+
+
+class PacienteResumen(BaseModel):
+    """Datos del paciente que acompañan a una cita (agenda, triaje)."""
+
+    id_paciente: int
+    dni: str
+    nombres: str
+    apellidos: str
+    fecha_nacimiento: date
+    telefono: str | None
+    numero_hce: str

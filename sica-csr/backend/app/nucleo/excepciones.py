@@ -25,6 +25,10 @@ class Conflicto(ErrorNegocio):
     codigo_http = 409
 
 
+class DatosInvalidos(ErrorNegocio):
+    codigo_http = 422
+
+
 class NoAutorizado(ErrorNegocio):
     codigo_http = 401
 

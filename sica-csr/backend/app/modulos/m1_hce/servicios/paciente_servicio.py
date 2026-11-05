@@ -8,7 +8,7 @@ from app.nucleo.auditoria.servicio import Auditor
 from app.nucleo.excepciones import Conflicto, NoEncontrado
 
 
-def _a_salida(paciente: Paciente) -> PacienteSalida:
+def a_salida(paciente: Paciente) -> PacienteSalida:
     return PacienteSalida(
         id_paciente=paciente.id_paciente,
         dni=paciente.dni,
@@ -28,7 +28,7 @@ def buscar(db: Session, texto: str, limite: int = 20) -> list[PacienteSalida]:
         Paciente.nombres.ilike(f"%{texto}%"), Paciente.apellidos.ilike(f"%{texto}%")
     )
     pacientes = db.scalars(select(Paciente).where(filtro).order_by(Paciente.apellidos).limit(limite))
-    return [_a_salida(p) for p in pacientes]
+    return [a_salida(p) for p in pacientes]
 
 
 def obtener(db: Session, id_paciente: int, auditor: Auditor) -> PacienteSalida:
@@ -37,7 +37,7 @@ def obtener(db: Session, id_paciente: int, auditor: Auditor) -> PacienteSalida:
         raise NoEncontrado("Paciente no encontrado")
     auditor.registrar("CONSULTAR", "paciente", id_paciente)
     db.commit()
-    return _a_salida(paciente)
+    return a_salida(paciente)
 
 
 def registrar(db: Session, datos: PacienteCrear, auditor: Auditor) -> PacienteSalida:
@@ -53,7 +53,7 @@ def registrar(db: Session, datos: PacienteCrear, auditor: Auditor) -> PacienteSa
     db.refresh(paciente.historia)
     auditor.registrar("CREAR", "paciente", paciente.id_paciente, f"HCE {paciente.historia.numero_hce}")
     db.commit()
-    return _a_salida(paciente)
+    return a_salida(paciente)
 
 
 def actualizar(db: Session, id_paciente: int, datos: PacienteActualizar, auditor: Auditor) -> PacienteSalida:
@@ -64,4 +64,4 @@ def actualizar(db: Session, id_paciente: int, datos: PacienteActualizar, auditor
         setattr(paciente, campo, valor)
     auditor.registrar("ACTUALIZAR", "paciente", id_paciente)
     db.commit()
-    return _a_salida(paciente)
+    return a_salida(paciente)

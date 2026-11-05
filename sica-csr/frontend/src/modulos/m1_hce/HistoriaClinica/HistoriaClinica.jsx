@@ -1,5 +1,4 @@
 // HU04 HCE unificada · HU05 consulta con CIE-10 y receta · HU06 imprimir receta · HU12 anular con motivo.
-// PROTOTIPO: el paciente viene de la API real; antecedentes, triajes y consultas, de la BD simulada (ver api.js).
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { mensajeError } from '../../../compartido/api/clienteHttp.js'
