@@ -14,11 +14,20 @@ router = APIRouter(prefix="/citas", tags=["M2 · Citas"], dependencies=[requiere
 
 
 @router.get("", response_model=list[CitaSalida])
-def listar(db: Sesion, fecha: date | None = None, id_medico: int | None = None, id_paciente: int | None = None):
-    """Con `id_paciente`: próximas citas del paciente. Si no, citas filtradas por fecha y/o médico."""
-    if id_paciente is not None:
+def listar(
+    db: Sesion,
+    fecha: date | None = None,
+    id_medico: int | None = None,
+    id_especialidad: int | None = None,
+    id_paciente: int | None = None,
+):
+    """Solo con `id_paciente`: próximas citas del paciente. Si no, citas filtradas por fecha, médico,
+    especialidad y/o paciente (los filtros se combinan)."""
+    if id_paciente is not None and fecha is None and id_medico is None and id_especialidad is None:
         return cita_servicio.proximas_del_paciente(db, id_paciente)
-    return cita_servicio.listar(db, fecha=fecha, id_medico=id_medico)
+    return cita_servicio.listar(
+        db, fecha=fecha, id_medico=id_medico, id_especialidad=id_especialidad, id_paciente=id_paciente
+    )
 
 
 @router.post(

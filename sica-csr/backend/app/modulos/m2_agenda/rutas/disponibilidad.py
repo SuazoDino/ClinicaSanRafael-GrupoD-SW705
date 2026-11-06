@@ -26,8 +26,14 @@ def medicos(db: Sesion, id_especialidad: int | None = None):
 
 
 @router.get("/dias", response_model=list[date], dependencies=RECEPCION)
-def dias(db: Sesion, desde: date, cantidad: int = Query(default=6, ge=1, le=30)):
-    return disponibilidad_servicio.dias_con_atencion(db, desde, cantidad)
+def dias(
+    db: Sesion,
+    desde: date,
+    cantidad: int = Query(default=6, ge=1, le=30),
+    id_medico: int | None = None,
+    id_especialidad: int | None = None,
+):
+    return disponibilidad_servicio.dias_con_atencion(db, desde, cantidad, id_medico, id_especialidad)
 
 
 @router.get("", response_model=list[CupoSalida], dependencies=RECEPCION)

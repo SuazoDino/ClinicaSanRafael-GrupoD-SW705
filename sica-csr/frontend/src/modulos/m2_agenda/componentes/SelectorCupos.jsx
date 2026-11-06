@@ -5,11 +5,17 @@ import { disponibilidadApi } from '../api.js'
 
 const TEXTO_CUPO = { libre: 'Libre', ocupado: 'Ocupado', pasado: 'Pasó' }
 
-export default function SelectorCupos({ idMedico, fecha, onFecha, hora, onHora, version = 0 }) {
+export default function SelectorCupos({ idMedico, idEspecialidad, fecha, onFecha, hora, onHora, version = 0 }) {
   const [dias, setDias] = useState([])
   const [cupos, setCupos] = useState(null)
 
-  useEffect(() => { disponibilidadApi.diasConAtencion(hoyISO(), 6).then(setDias) }, [])
+  // Solo los días en que atiende el médico elegido (o algún médico de la especialidad)
+  useEffect(() => {
+    disponibilidadApi.diasConAtencion({ desde: hoyISO(), idMedico, idEspecialidad }).then((d) => {
+      setDias(d)
+      if (d.length > 0 && !d.includes(fecha)) onFecha(d[0])
+    })
+  }, [idMedico, idEspecialidad]) // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (!idMedico) { setCupos(null); return }
     setCupos(null)
@@ -52,6 +58,9 @@ export default function SelectorCupos({ idMedico, fecha, onFecha, hora, onHora, 
               </button>
             ))}
           </div>
+          {libres === 0 && (
+            <p className="alerta alerta--aviso selector-cupos__aviso">No quedan cupos libres este día. Elige otro día en la tira de arriba.</p>
+          )}
           <p className="leyenda">
             <span><i className="leyenda__punto leyenda__punto--libre" />Libre ({libres})</span>
             <span><i className="leyenda__punto leyenda__punto--elegido" />Elegido</span>

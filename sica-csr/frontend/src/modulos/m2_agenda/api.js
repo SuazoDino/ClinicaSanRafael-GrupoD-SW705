@@ -19,12 +19,15 @@ export const medicosApi = {
 // HU01 · cupos calculados desde horario_medico menos las citas vigentes
 export const disponibilidadApi = {
   cupos: ({ idMedico, fecha }) => http.get('/disponibilidad', { params: { id_medico: idMedico, fecha } }).then(aDatos),
-  // Días con atención a partir de una fecha (para la tira de días)
-  diasConAtencion: (desde, cantidad = 6) => http.get('/disponibilidad/dias', { params: { desde, cantidad } }).then(aDatos),
+  // Días con atención a partir de una fecha (para la tira de días), del médico o de la especialidad si se indican
+  diasConAtencion: ({ desde, cantidad = 6, idMedico, idEspecialidad }) =>
+    http.get('/disponibilidad/dias', { params: params({ desde, cantidad, id_medico: idMedico, id_especialidad: idEspecialidad }) }).then(aDatos),
 }
 
 export const citasApi = {
-  listar: ({ fecha, idMedico } = {}) => http.get('/citas', { params: params({ fecha, id_medico: idMedico }) }).then(aDatos),
+  // Los filtros se combinan (fecha, médico, especialidad y paciente)
+  listar: ({ fecha, idMedico, idEspecialidad, idPaciente } = {}) =>
+    http.get('/citas', { params: params({ fecha, id_medico: idMedico, id_especialidad: idEspecialidad, id_paciente: idPaciente }) }).then(aDatos),
 
   // Próximas citas del paciente
   delPaciente: (idPaciente) => http.get('/citas', { params: { id_paciente: idPaciente } }).then(aDatos),

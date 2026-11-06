@@ -13,7 +13,7 @@ from sqlalchemy.orm import Session
 from app.modulos.m1_hce.servicios import resumen_servicio
 from app.modulos.m2_agenda.esquemas.cita import CitaCancelar, CitaConMedico, CitaCrear, CitaReprogramar, CitaSalida
 from app.modulos.m2_agenda.esquemas.recordatorio import RecordatorioSalida
-from app.modulos.m2_agenda.modelos import Cita, Recordatorio
+from app.modulos.m2_agenda.modelos import Cita, Medico, Recordatorio
 from app.modulos.m2_agenda.servicios import disponibilidad_servicio
 from app.nucleo.auditoria.servicio import Auditor
 from app.nucleo.autenticacion.modelos import Usuario
@@ -76,6 +76,8 @@ def listar(
     id_medico: int | None = None,
     estados: Sequence[str] | None = None,
     sin_canceladas: bool = False,
+    id_especialidad: int | None = None,
+    id_paciente: int | None = None,
 ) -> list[CitaSalida]:
     """Citas filtradas, ordenadas por hora y luego por médico."""
     consulta = select(Cita).order_by(Cita.hora, Cita.id_medico)
@@ -83,6 +85,12 @@ def listar(
         consulta = consulta.where(Cita.fecha == fecha)
     if id_medico is not None:
         consulta = consulta.where(Cita.id_medico == id_medico)
+    if id_paciente is not None:
+        consulta = consulta.where(Cita.id_paciente == id_paciente)
+    if id_especialidad is not None:
+        consulta = consulta.join(Medico, Medico.id_medico == Cita.id_medico).where(
+            Medico.id_especialidad == id_especialidad
+        )
     if estados:
         consulta = consulta.where(Cita.estado.in_(estados))
     if sin_canceladas:

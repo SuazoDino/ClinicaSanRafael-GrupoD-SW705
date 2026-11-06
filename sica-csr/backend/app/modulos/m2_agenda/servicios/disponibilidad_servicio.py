@@ -90,9 +90,23 @@ def cupos(db: Session, id_medico: int, fecha: date, ignorar_cita: int | None = N
     return resultado
 
 
-def dias_con_atencion(db: Session, desde: date, cantidad: int) -> list[date]:
-    """Próximos días (hasta 30 a partir de `desde`) en los que algún médico atiende."""
-    dias_semana = set(db.scalars(select(HorarioMedico.dia_semana).distinct()))
+def dias_con_atencion(
+    db: Session,
+    desde: date,
+    cantidad: int,
+    id_medico: int | None = None,
+    id_especialidad: int | None = None,
+) -> list[date]:
+    """Próximos días (hasta 30 a partir de `desde`) en los que atiende el médico, algún médico de la
+    especialidad o, sin filtros, algún médico."""
+    consulta = select(HorarioMedico.dia_semana).distinct()
+    if id_medico is not None:
+        consulta = consulta.where(HorarioMedico.id_medico == id_medico)
+    if id_especialidad is not None:
+        consulta = consulta.join(Medico, Medico.id_medico == HorarioMedico.id_medico).where(
+            Medico.id_especialidad == id_especialidad
+        )
+    dias_semana = set(db.scalars(consulta))
     dias = []
     for d in range(MAX_DIAS_BUSQUEDA):
         fecha = desde + timedelta(days=d)

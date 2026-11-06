@@ -30,6 +30,9 @@ const ICONOS = {
   medico: <><circle cx="12" cy="7" r="4" /><path d="M5 21v-2a7 7 0 0 1 14 0v2" /><path d="M12 14v4M10 16h4" /></>,
   personal: <><rect x="4" y="3" width="16" height="18" rx="2" /><circle cx="12" cy="10" r="3" /><path d="M8 17c.6-1.8 2.1-3 4-3s3.4 1.2 4 3" /><path d="M10 3v2h4V3" /></>,
   receta: <><path d="M6 3h12v18H6z" /><path d="M9 7h3a2 2 0 0 1 0 4H9V7zM9 11v4M11.5 11l3 4" /></>,
+  laboratorio: <><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.7 3h10.6a2 2 0 0 0 1.7-3l-5-9V3" /><path d="M7.5 15h9" /></>,
+  facturacion: <><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z" /><path d="M9 8h6M9 12h6M9 16h3" /></>,
+  reportes: <><path d="M4 20h16" /><path d="M7 16v-5M12 16V6M17 16v-8" /></>,
 }
 
 export default function Icono({ nombre, tamano = 18, className }) {

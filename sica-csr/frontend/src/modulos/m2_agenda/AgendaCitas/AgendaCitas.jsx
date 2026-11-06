@@ -16,53 +16,58 @@ const CANAL = { whatsapp: 'WhatsApp', sms: 'SMS', email: 'Correo' }
 
 export default function AgendaCitas() {
   const [params, setParams] = useSearchParams()
-  const [paciente, setPaciente] = useState(null)
   const [especialidades, setEspecialidades] = useState([])
   const [medicos, setMedicos] = useState([])
+  // Filtros de la tabla
+  const [texto, setTexto] = useState('')
   const [idEspecialidad, setIdEspecialidad] = useState('')
   const [idMedico, setIdMedico] = useState('')
   const [fecha, setFecha] = useState(hoyISO())
-  const [hora, setHora] = useState(null)
   const [citas, setCitas] = useState([])
-  const [version, setVersion] = useState(0) // al cambiar, se recargan cupos y citas
+  const [version, setVersion] = useState(0) // al cambiar, se recargan las citas
   const [mensaje, setMensaje] = useState(null)
-  const [ocupado, setOcupado] = useState(false)
+  // Ventanas
+  const [nuevaCita, setNuevaCita] = useState(null) // null = cerrada; { paciente } = abierta
   const [reprogramando, setReprogramando] = useState(null)
   const [cancelando, setCancelando] = useState(null)
 
   const recargar = () => setVersion((v) => v + 1)
   const medico = medicos.find((m) => m.id_medico === Number(idMedico))
 
-  // Paciente preseleccionado desde la pantalla Pacientes (/agenda?paciente=12)
+  // Paciente preseleccionado desde la pantalla Pacientes (/agenda?paciente=12): abre «Nueva cita» con él
   useEffect(() => {
     const id = params.get('paciente')
-    if (id) pacientesApi.obtener(id).then(setPaciente).catch(() => {})
+    if (id) pacientesApi.obtener(id).then((p) => setNuevaCita({ paciente: p })).catch(() => {})
   }, [params])
 
   useEffect(() => { especialidadesApi.listar().then(setEspecialidades) }, [])
   useEffect(() => { medicosApi.listar(idEspecialidad).then(setMedicos) }, [idEspecialidad])
-  useEffect(() => { citasApi.listar({ fecha, idMedico }).then(setCitas) }, [fecha, idMedico, version])
+  useEffect(() => { citasApi.listar({ fecha, idMedico, idEspecialidad }).then(setCitas) }, [fecha, idMedico, idEspecialidad, version])
 
-  function elegirPaciente(p) {
-    setPaciente(p)
-    if (!p && params.has('paciente')) setParams({}, { replace: true })
+  // La búsqueda por paciente filtra la tabla (DNI, nombres o apellidos)
+  const busqueda = texto.trim().toLowerCase()
+  const visibles = busqueda
+    ? citas.filter((c) => `${c.paciente?.dni} ${nombreCompleto(c.paciente)}`.toLowerCase().includes(busqueda))
+    : citas
+  const hayFiltros = Boolean(busqueda || idEspecialidad || idMedico)
+
+  function limpiarFiltros() {
+    setTexto('')
+    setIdEspecialidad('')
+    setIdMedico('')
   }
 
-  async function confirmar() {
-    setMensaje(null)
-    setOcupado(true)
-    try {
-      const cita = await citasApi.registrar({ paciente, id_medico: medico.id_medico, fecha, hora })
-      setMensaje({ tipo: 'exito', texto: `Cita registrada: ${nombreCompleto(cita.paciente)} con ${nombreMedico(cita.medico)}, ${fechaLarga(fecha)} a las ${horaCorta(hora)}. Se programó el recordatorio 24 h antes.` })
-      setHora(null)
-      setPaciente(null)
-      if (params.has('paciente')) setParams({}, { replace: true })
-    } catch (err) {
-      setMensaje({ tipo: 'error', texto: mensajeError(err) })
-    } finally {
-      setOcupado(false)
-      recargar()
-    }
+  function cerrarNuevaCita() {
+    setNuevaCita(null)
+    if (params.has('paciente')) setParams({}, { replace: true })
+  }
+
+  function citaRegistrada(cita) {
+    cerrarNuevaCita()
+    limpiarFiltros()
+    setFecha(cita.fecha)
+    setMensaje({ tipo: 'exito', texto: `Cita registrada: ${nombreCompleto(cita.paciente)} con ${nombreMedico(cita.medico)}, ${fechaLarga(cita.fecha)} a las ${horaCorta(cita.hora)}. Se programó el recordatorio 24 h antes.` })
+    recargar()
   }
 
   async function asistencia(cita, asistio) {
@@ -78,58 +83,56 @@ export default function AgendaCitas() {
 
   return (
     <section>
-      <Encabezado titulo="Agenda de citas" descripcion="Disponibilidad consolidada por especialidad, médico y fecha." />
+      <Encabezado titulo="Agenda de citas" descripcion="Citas del día por especialidad y médico. Agenda, reprograma, cancela y marca asistencia.">
+        <button className="boton boton--con-icono" onClick={() => { setMensaje(null); setNuevaCita({ paciente: null }) }}>
+          <Icono nombre="mas" /><span>Nueva cita</span>
+        </button>
+      </Encabezado>
 
-      <div className="tarjeta">
-        <h2>Nueva cita</h2>
-        <div className="rejilla-3">
-          <BuscadorPaciente paciente={paciente} onSeleccionar={elegirPaciente} />
+      {mensaje && <p className={`alerta alerta--${mensaje.tipo}`}>{mensaje.texto}</p>}
+
+      <div className="tarjeta filtros-agenda">
+          <label>Fecha
+            <input type="date" value={fecha} onChange={(e) => e.target.value && setFecha(e.target.value)} />
+          </label>
+          <label>Paciente
+            <span className="campo-icono">
+              <Icono nombre="buscar" />
+              <input value={texto} onChange={(e) => setTexto(e.target.value)} placeholder="DNI, nombre o apellido" />
+            </span>
+          </label>
           <label>Especialidad
-            <select value={idEspecialidad} onChange={(e) => { setIdEspecialidad(e.target.value); setIdMedico(''); setHora(null) }}>
+            <select value={idEspecialidad} onChange={(e) => { setIdEspecialidad(e.target.value); setIdMedico('') }}>
               <option value="">Todas</option>
               {especialidades.map((e) => <option key={e.id_especialidad} value={e.id_especialidad}>{e.nombre}</option>)}
             </select>
           </label>
           <label>Médico
-            <select value={idMedico} onChange={(e) => { setIdMedico(e.target.value); setHora(null) }}>
-              <option value="">Selecciona un médico</option>
-              {medicos.map((m) => <option key={m.id_medico} value={m.id_medico}>{nombreMedico(m)} — {m.especialidad}</option>)}
+            <select value={idMedico} onChange={(e) => setIdMedico(e.target.value)}>
+              <option value="">Todos</option>
+              {medicos.map((m) => <option key={m.id_medico} value={m.id_medico}>{nombreMedico(m)}</option>)}
             </select>
           </label>
-        </div>
-
-        <SelectorCupos idMedico={idMedico} fecha={fecha} onFecha={(f) => { setFecha(f); setHora(null) }}
-          hora={hora} onHora={setHora} version={version} />
-
-        {hora && (
-          <div className="confirmar">
-            <p>
-              {paciente ? <strong>{nombreCompleto(paciente)}</strong> : <span className="texto-suave">Falta elegir al paciente</span>}
-              {' '}· {nombreMedico(medico)} · {fechaLarga(fecha)} · {horaCorta(hora)}
-            </p>
-            <button className="boton" onClick={confirmar} disabled={!paciente || ocupado}>
-              {ocupado ? 'Registrando…' : 'Confirmar cita'}
-            </button>
-          </div>
-        )}
       </div>
-
-      {mensaje && <p className={`alerta alerta--${mensaje.tipo}`}>{mensaje.texto}</p>}
 
       <div className="tarjeta tarjeta--tabla">
         <div className="tarjeta__cabeza">
-          <h2>Citas del {fechaLarga(fecha).toLowerCase()}</h2>
-          <span className="texto-suave">{medico ? nombreMedico(medico) : 'Todos los médicos'} · {citas.length} {citas.length === 1 ? 'cita' : 'citas'}</span>
+          <h2>{fecha === hoyISO() ? 'Hoy, ' : ''}{fechaLarga(fecha)}</h2>
+          <span className="texto-suave">
+            {visibles.length} {visibles.length === 1 ? 'cita' : 'citas'}
+            {hayFiltros && <> · <button type="button" className="enlace" onClick={limpiarFiltros}>Quitar filtros</button></>}
+          </span>
         </div>
-        {citas.length === 0 ? (
-          <div className="vacio vacio--plano"><p>No hay citas para este día.</p></div>
+
+        {visibles.length === 0 ? (
+          <div className="vacio vacio--plano"><p>{hayFiltros ? 'No hay citas con estos filtros para este día.' : 'No hay citas para este día.'}</p></div>
         ) : (
           <table className="tabla">
             <thead>
               <tr><th>Hora</th><th>Paciente</th>{!medico && <th>Médico</th>}<th>Estado</th><th>Recordatorio</th><th aria-label="Acciones" /></tr>
             </thead>
             <tbody>
-              {citas.map((c) => (
+              {visibles.map((c) => (
                 <tr key={c.id_cita} className={c.estado === 'cancelada' ? 'tabla__fila--apagada' : undefined}>
                   <td data-titulo="Hora"><strong>{horaCorta(c.hora)}</strong></td>
                   <td data-titulo="Paciente">
@@ -171,6 +174,12 @@ export default function AgendaCitas() {
         )}
       </div>
 
+      {nuevaCita && (
+        <ModalNuevaCita pacienteInicial={nuevaCita.paciente} especialidades={especialidades}
+          idEspecialidadInicial={idEspecialidad} idMedicoInicial={idMedico}
+          fechaInicial={fecha < hoyISO() ? hoyISO() : fecha}
+          onCerrar={cerrarNuevaCita} onListo={citaRegistrada} />
+      )}
       {reprogramando && (
         <ModalReprogramar cita={reprogramando} onCerrar={() => setReprogramando(null)}
           onListo={(c) => {
@@ -184,6 +193,84 @@ export default function AgendaCitas() {
           onListo={() => { setCancelando(null); setMensaje({ tipo: 'exito', texto: 'Cita cancelada. El cupo quedó libre.' }); recargar() }} />
       )}
     </section>
+  )
+}
+
+// HU01 + HU02 · Nueva cita en tres pasos: paciente → especialidad y médico → fecha y horario libre
+function ModalNuevaCita({ pacienteInicial, especialidades, idEspecialidadInicial, idMedicoInicial, fechaInicial, onCerrar, onListo }) {
+  const [paciente, setPaciente] = useState(pacienteInicial)
+  const [idEspecialidad, setIdEspecialidad] = useState(idEspecialidadInicial)
+  const [medicos, setMedicos] = useState([])
+  const [idMedico, setIdMedico] = useState(idMedicoInicial)
+  const [fecha, setFecha] = useState(fechaInicial)
+  const [hora, setHora] = useState(null)
+  const [error, setError] = useState('')
+  const [ocupado, setOcupado] = useState(false)
+  const [version, setVersion] = useState(0)
+
+  useEffect(() => { medicosApi.listar(idEspecialidad).then(setMedicos) }, [idEspecialidad])
+  const medico = medicos.find((m) => m.id_medico === Number(idMedico))
+  const listo = paciente && medico && hora
+
+  async function agendar() {
+    setError('')
+    setOcupado(true)
+    try {
+      onListo(await citasApi.registrar({ paciente, id_medico: medico.id_medico, fecha, hora }))
+    } catch (err) {
+      // HU02: si otro usuario tomó el cupo, se recargan los cupos y se pide elegir otro
+      setError(mensajeError(err))
+      setHora(null)
+      setVersion((v) => v + 1)
+      setOcupado(false)
+    }
+  }
+
+  return (
+    <Modal titulo="Nueva cita" ancho="ancho" onCerrar={onCerrar}
+      subtitulo="Elige al paciente, el médico y un horario libre."
+      pie={(
+        <>
+          <p className="modal__resumen">
+            {listo
+              ? <><strong>{nombreCompleto(paciente)}</strong> · {nombreMedico(medico)} · {fechaLarga(fecha)} · {horaCorta(hora)}</>
+              : <span className="texto-suave">Falta elegir: {[!paciente && 'paciente', !medico && 'médico', !hora && 'horario'].filter(Boolean).join(', ')}.</span>}
+          </p>
+          <button className="boton boton--secundario" onClick={onCerrar}>Volver</button>
+          <button className="boton" onClick={agendar} disabled={!listo || ocupado}>{ocupado ? 'Registrando…' : 'Agendar cita'}</button>
+        </>
+      )}>
+      {error && <p className="alerta alerta--error">{error}</p>}
+
+      <div className="paso">
+        <h3 className="paso__titulo"><span className="paso__numero">1</span>Paciente</h3>
+        <BuscadorPaciente paciente={paciente} onSeleccionar={setPaciente} etiqueta="Buscar por DNI, nombre o apellido" autoFocus={!paciente} />
+      </div>
+
+      <div className="paso">
+        <h3 className="paso__titulo"><span className="paso__numero">2</span>Especialidad y médico</h3>
+        <div className="rejilla-2">
+          <label>Especialidad
+            <select value={idEspecialidad} onChange={(e) => { setIdEspecialidad(e.target.value); setIdMedico(''); setHora(null) }}>
+              <option value="">Todas</option>
+              {especialidades.map((e) => <option key={e.id_especialidad} value={e.id_especialidad}>{e.nombre}</option>)}
+            </select>
+          </label>
+          <label>Médico
+            <select value={idMedico} onChange={(e) => { setIdMedico(e.target.value); setHora(null) }}>
+              <option value="">Selecciona un médico</option>
+              {medicos.map((m) => <option key={m.id_medico} value={m.id_medico}>{nombreMedico(m)} — {m.especialidad}</option>)}
+            </select>
+          </label>
+        </div>
+      </div>
+
+      <div className="paso">
+        <h3 className="paso__titulo"><span className="paso__numero">3</span>Fecha y horario</h3>
+        <SelectorCupos idMedico={idMedico} idEspecialidad={idEspecialidad} fecha={fecha}
+          onFecha={(f) => { setFecha(f); setHora(null) }} hora={hora} onHora={setHora} version={version} />
+      </div>
+    </Modal>
   )
 }
 
