@@ -169,6 +169,8 @@ def reprogramar(db: Session, id_cita: int, datos: CitaReprogramar, auditor: Audi
     cita = obtener(db, id_cita)
     if cita.estado not in MODIFICABLES:
         raise Conflicto("Solo se reprograman citas que aún no se atienden.")
+    if (datos.fecha, datos.hora) == (cita.fecha, cita.hora):
+        raise DatosInvalidos("La nueva fecha y hora es igual a la actual. Elige otro cupo.")
     _verificar_cupo(db, cita.id_medico, datos.fecha, datos.hora, ignorar_cita=cita.id_cita)
 
     anterior = f"{cita.fecha} {cita.hora:%H:%M}"
