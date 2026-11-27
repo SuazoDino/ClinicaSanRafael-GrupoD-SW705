@@ -21,7 +21,8 @@ from app.nucleo.excepciones import Conflicto, DatosInvalidos, NoEncontrado, Proh
 from app.nucleo.tiempo import hoy
 
 MODIFICABLES = ("registrada", "confirmada")  # estados en los que aún se puede reprogramar o cancelar
-ANTICIPACION_RECORDATORIO = timedelta(hours=24)
+HORAS_ANTES_RECORDATORIO = 24
+ANTICIPACION_RECORDATORIO = timedelta(hours=HORAS_ANTES_RECORDATORIO)
 CANAL_RECORDATORIO = "whatsapp"
 
 
@@ -152,6 +153,14 @@ def _programar_recordatorio(db: Session, cita: Cita) -> None:
     )
 
 
+def _anular_recordatorios_pendientes(db: Session, id_cita: int) -> None:
+    """HU09 · El recordatorio de la fecha anterior ya no corresponde: no queda pendiente."""
+    for recordatorio in db.scalars(
+        select(Recordatorio).where(Recordatorio.id_cita == id_cita, Recordatorio.estado == "pendiente")
+    ):
+        recordatorio.estado = "fallido"
+
+
 def registrar(db: Session, datos: CitaCrear, auditor: Auditor) -> CitaSalida:
     if not resumen_servicio.existe_paciente(db, datos.id_paciente):
         raise NoEncontrado("Paciente no encontrado")
@@ -171,6 +180,7 @@ def reprogramar(db: Session, id_cita: int, datos: CitaReprogramar, auditor: Audi
         raise Conflicto("Solo se reprograman citas que aún no se atienden.")
     if (datos.fecha, datos.hora) == (cita.fecha, cita.hora):
         raise DatosInvalidos("La nueva fecha y hora es igual a la actual. Elige otro cupo.")
+    _anular_recordatorios_pendientes(db, cita.id_cita)
     _verificar_cupo(db, cita.id_medico, datos.fecha, datos.hora, ignorar_cita=cita.id_cita)
 
     anterior = f"{cita.fecha} {cita.hora:%H:%M}"
