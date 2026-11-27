@@ -1,0 +1,6 @@
+historia,titulo,puntos,estado,fecha_fin
+HU09,Recordatorio 24 h con contrato Notificador (M2 + nucleo),5,en_curso,
+HU13,Registrar orden de laboratorio o imagen desde la consulta (M3),5,en_curso,
+HU14,Registrar y consultar resultado digital de laboratorio (M3),5,en_curso,
+HU15,Calcular copago segun convenio EPS (M4),5,en_curso,
+HU16,Dashboard gerencial: inasistencia y ocupacion (M5),3,en_curso,
